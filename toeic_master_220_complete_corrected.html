@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TOEIC Master 220</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fa;color:#202124;font-family:Arial,"Microsoft JhengHei",sans-serif}
+.wrap{max-width:1080px;margin:24px auto;padding:0 16px}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:24px;box-shadow:0 5px 18px rgba(0,0,0,.045)}
+h1{font-size:23px;margin:0 0 5px}.muted,.small{color:#6b7280;font-size:13px}
+.row,.modes,.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.grow{flex:1}
+button,select,input{font:inherit}
+button{cursor:pointer}
+.btn,.mode,.choice{border:1px solid #d1d5db;background:#fff;border-radius:20px;padding:9px 13px}
+.mode.active{background:#202124;color:#fff;border-color:#202124}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:15px 0}
+.stat{background:#f8fafc;border-radius:10px;padding:10px;text-align:center}
+.stat b{display:block;font-size:20px}
+.prompt{font-size:28px;font-weight:700;line-height:1.3;margin:13px 0}
+.context,.listen{background:#f8fafc;border-radius:10px;padding:13px 14px;margin:10px 0;line-height:1.55}
+.listen{text-align:center}.listen .icon{font-size:38px}
+input[type=text]{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:9px;font-size:18px;outline:none}
+input[type=text]:focus{border-color:#8ea6ff;box-shadow:0 0 0 3px rgba(70,105,255,.12)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.choice{text-align:left;border-radius:10px;line-height:1.45}
+.choice.correct{background:#edf8f0;border-color:#43a467}.choice.wrong{background:#fff0f0;border-color:#da5b5b}
+.feedback{font-weight:700;margin-top:12px;line-height:1.5}.good{color:#16753b}.bad{color:#c93535}
+.details{margin-top:13px;border-top:1px solid #e5e7eb;padding-top:13px}
+.detailgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.box{background:#f8fafc;border-radius:10px;padding:11px;line-height:1.55}
+.word{font-size:19px;font-weight:700}.ipa{font-weight:400;color:#555}.tag{font-size:12px;color:#4f46e5;background:#eef2ff;padding:3px 8px;border-radius:12px;display:inline-block;margin-top:5px}
+.note{margin-top:8px;border-left:3px solid #9ca3af;padding:8px 10px;background:#fafafa}
+.hidden{display:none!important}
+.end{text-align:center}.review{text-align:left;margin-top:14px}.reviewrow{padding:8px 0;border-top:1px solid #e5e7eb}
+.badge{font-size:12px;padding:2px 7px;border-radius:10px;background:#fee2e2;color:#991b1b}
+.bank{margin-top:18px}.bankgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.bankitem{background:#f8fafc;padding:10px;border-radius:9px;line-height:1.45}
+kbd{background:#eee;border:1px solid #ccc;border-bottom-width:2px;border-radius:4px;padding:1px 5px}
+@media(max-width:760px){.stats{grid-template-columns:1fr 1fr}.choices,.detailgrid,.bankgrid{grid-template-columns:1fr}.prompt{font-size:24px}}
+
+.sentenceFillWrap{display:flex;flex-wrap:wrap;gap:8px 6px;align-items:flex-end;background:#f8fafc;border-radius:12px;padding:15px;margin:10px 0}
+.wordBox{display:inline-flex;align-items:flex-end}
+.wordInput{min-width:58px;padding:8px 7px;border:1px solid #cfd4dc;border-radius:8px;font-size:16px;text-align:center;background:#fff;outline:none}
+.wordInput:focus{border-color:#8ea6ff;box-shadow:0 0 0 3px rgba(70,105,255,.11)}
+.wordInput.correctWord{background:#edf8f0;border-color:#42a366;color:#166534}
+.wordInput.wrongWord{background:#fff0f0;border-color:#d85c5c;color:#991b1b}
+.wordPunct{margin-left:1px}
+.listenTap{cursor:pointer;user-select:none}
+.listenTap:active{transform:scale(.997)}
+.wordStatus{font-size:12px;margin:4px 0 8px;color:#6b7280}
+
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<div class="row">
+  <div>
+    <h1>TOEIC Master – 220 từ/cụm từ</h1>
+    <div class="muted">Toàn bộ từ đã học · lưu đúng/sai · từ sai được luyện riêng theo đúng dạng bài bạn chọn</div>
+  </div>
+  <span class="grow"></span>
+  <button id="reset" class="btn">Xóa tiến độ</button>
+</div>
+
+<div class="stats">
+  <div class="stat"><b id="sAttempts">0</b>Lượt làm</div>
+  <div class="stat"><b id="sCorrect">0</b>Đúng</div>
+  <div class="stat"><b id="sWrong">0</b>Sai</div>
+  <div class="stat"><b id="sWeak">0</b>Từ hay sai</div>
+  <div class="stat"><b id="sMaster">0</b>Đã nhớ</div>
+</div>
+
+<div class="modes">
+  <button class="mode active" data-mode="mixed">Tổng hợp</button>
+  <button class="mode" data-mode="listenWrite">Nghe → viết từ</button>
+  <button class="mode" data-mode="sentenceTarget">Nghe câu → viết từ mới</button>
+  <button class="mode" data-mode="sentenceWordFill">Nghe câu → điền từng từ</button>
+  <button class="mode" data-mode="listenMeaningWrite">Nghe → viết nghĩa</button>
+  <button class="mode" data-mode="listenMeaningChoice">Nghe → chọn nghĩa</button>
+  <button class="mode" data-mode="enVi">Anh → Việt</button>
+  <button class="mode" data-mode="viEn">Việt → Anh</button>
+  <button class="mode" data-mode="viEnChoice">Việt → chọn Anh</button>
+  <button class="mode" data-mode="cloze">Điền câu</button>
+  
+</div>
+
+
+<div class="context" style="margin-top:14px">
+  <b>🎯 Ôn từ sai riêng lẻ</b>
+  <div class="small" style="margin:5px 0 9px">
+    Chỉ luyện những từ bạn từng làm sai. Chọn 1 dạng bài duy nhất, không trộn với dạng khác.
+  </div>
+  <div class="row" style="margin:0">
+    <label>Dạng luyện:
+      <select id="wrongModeSelect">
+        <option value="listenWrite">Nghe → viết từ</option>
+        <option value="sentenceTarget">Nghe cả câu → viết từ mới</option>
+        <option value="sentenceWordFill">Nghe cả câu → điền từng từ</option>
+        <option value="listenMeaningWrite">Nghe → viết nghĩa Việt</option>
+        <option value="listenMeaningChoice">Nghe → chọn nghĩa</option>
+        <option value="enVi">Anh → Việt</option>
+        <option value="viEn">Việt → Anh</option>
+        <option value="viEnChoice">Việt → chọn Anh</option>
+        <option value="cloze">Điền vào câu</option>
+      </select>
+    </label>
+    <button id="startWrongPractice" class="btn">Bắt đầu ôn từ sai</button>
+  </div>
+</div>
+
+<div class="row">
+  <label>Số câu:
+    <select id="count">
+      <option value="20">20</option>
+      <option value="40">40</option>
+      <option value="80">80</option>
+      <option value="120">120</option>
+      <option value="220">Tất cả 220</option>
+    </select>
+  </label>
+  <label><input id="autoplay" type="checkbox" checked> Tự phát âm khi sang câu mới</label>
+  <span class="grow"></span>
+  <button id="repeat" class="btn">🔁 Nghe lại</button>
+  <button id="slow" class="btn">🐢 Nghe rất chậm</button>
+  <button id="newRound" class="btn">🔀 Lượt mới</button>
+</div>
+<div class="small" style="margin:2px 0 12px">
+  Câu ví dụ và câu điền được lấy nguyên câu từ TOEIC sentence bank trong bộ từ vựng của bạn; không tự tạo câu mới.
+</div>
+
+<div id="quiz">
+  <div id="progress" class="small"></div>
+  <div id="score" class="small"></div>
+  <div id="prompt" class="prompt"></div>
+  <div id="context" class="context hidden"></div>
+  <div id="listen" class="listen hidden listenTap"><div class="icon">🎧</div><b>Chạm / nhấp vào đây để nghe.</b></div>
+
+  <div id="sentenceFill" class="sentenceFillWrap hidden"></div>
+  <div id="sentenceWordStatus" class="wordStatus hidden"></div>
+  <div id="choices" class="choices hidden"></div>
+
+  <div id="typing">
+    <input id="answer" type="text" autocomplete="off" placeholder="Nhập đáp án...">
+    <div class="controls"><button id="check" class="btn">Kiểm tra</button></div>
+  </div>
+
+  <div id="feedback" class="feedback"></div>
+
+  <div id="details" class="details hidden">
+    <div class="detailgrid">
+      <div class="box">
+        <div id="wordline" class="word"></div>
+        <div id="tag" class="tag"></div>
+        <div id="meaning" style="margin-top:7px"></div>
+        <div id="collocation" style="margin-top:7px"></div>
+      </div>
+      <div class="box">
+        <b>Câu TOEIC dùng để luyện</b>
+        <div id="exEn" style="margin-top:7px"></div>
+        <div id="exCn"></div>
+        <div id="exVi"></div>
+        <div id="sourceLine" class="small" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div id="note" class="note hidden"></div>
+    <div class="controls">
+      <button id="hard" class="btn">⭐ Đánh dấu từ khó</button>
+    </div>
+  </div>
+
+  <div class="controls"><button id="next" class="btn hidden">Câu tiếp theo</button></div>
+  <div class="small"><kbd>Enter</kbd> lần 1 = kiểm tra · <kbd>Enter</kbd> lần 2 = câu tiếp theo</div>
+</div>
+
+<div id="end" class="end hidden">
+  <h2>Hoàn thành lượt luyện</h2>
+  <p id="result"></p>
+  <div class="controls" style="justify-content:center">
+    <button id="redoWrong" class="btn">🔁 Luyện riêng từ sai lượt này</button>
+    <button id="redoFrequent" class="btn">🔥 Luyện riêng từ hay sai</button>
+    <button id="again" class="btn">🔀 Lượt mới</button>
+  </div>
+  <div id="review" class="review"></div>
+</div>
+
+<details class="bank">
+  <summary><b>📚 Xem toàn bộ 220 từ/cụm từ</b></summary>
+  <div style="margin-top:10px"><input id="search" type="text" placeholder="Tìm từ hoặc nghĩa..."></div>
+  <div id="bankGrid" class="bankgrid"></div>
+</details>
+</div></div>
+
+<script>
+const MASTER=[{"en":"looking at","vi":["đang nhìn","đang xem"],"cn":"正在看著；正在查看","ipa":"/ˈlʊkɪŋ æt/","collocation":"look at a document","ex_en":"The woman is looking at a document.","ex_cn":"那位女士正在查看一份文件。","ex_vi":"Người phụ nữ đang xem một tài liệu.","note":"","label":"Động tác / 動作","cloze":"The woman is _____ a document.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"staring","vi":["đang nhìn chằm chằm"],"cn":"正盯著看；凝視","ipa":"/ˈsterɪŋ/","collocation":"stare at a screen","ex_en":"The man is staring at the computer screen.","ex_cn":"那位男士正盯著電腦螢幕看。","ex_vi":"Người đàn ông đang nhìn chằm chằm vào màn hình máy tính.","note":"","label":"Động tác / 動作","cloze":"The man is _____ at the computer screen.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"reading","vi":["đang đọc"],"cn":"正在閱讀","ipa":"/ˈriːdɪŋ/","collocation":"read a report","ex_en":"The employee is reading a report.","ex_cn":"那位員工正在閱讀一份報告。","ex_vi":"Nhân viên đang đọc một báo cáo.","note":"","label":"Động tác / 動作","cloze":"The employee is _____ a report.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"watching","vi":["đang xem","đang quan sát"],"cn":"正在觀看；正在觀察","ipa":"/ˈwɑːtʃɪŋ/","collocation":"watch a presentation","ex_en":"Several people are watching a presentation.","ex_cn":"幾個人正在觀看簡報。","ex_vi":"Một số người đang xem một bài thuyết trình.","note":"","label":"Động tác / 動作","cloze":"Several people are _____ a presentation.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"eating","vi":["đang ăn"],"cn":"正在吃；用餐","ipa":"/ˈiːtɪŋ/","collocation":"eat a meal","ex_en":"The customers are eating a meal.","ex_cn":"顧客們正在用餐。","ex_vi":"Các khách hàng đang dùng bữa.","note":"","label":"Động tác / 動作","cloze":"The customers are _____ a meal.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"drinking","vi":["đang uống"],"cn":"正在喝；飲用","ipa":"/ˈdrɪŋkɪŋ/","collocation":"drink coffee","ex_en":"The man is drinking some coffee.","ex_cn":"那位男士正在喝咖啡。","ex_vi":"Người đàn ông đang uống cà phê.","note":"","label":"Động tác / 動作","cloze":"The man is _____ some coffee.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"talking","vi":["đang nói chuyện","đang trò chuyện"],"cn":"正在交談；正在說話","ipa":"/ˈtɔːkɪŋ/","collocation":"talk to a colleague","ex_en":"Two colleagues are talking in the hallway.","ex_cn":"兩位同事正在走廊上交談。","ex_vi":"Hai đồng nghiệp đang nói chuyện ở hành lang.","note":"","label":"Động tác / 動作","cloze":"Two colleagues are _____ in the hallway.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"smiling","vi":["đang mỉm cười"],"cn":"正在微笑","ipa":"/ˈsmaɪlɪŋ/","collocation":"smile at a customer","ex_en":"The receptionist is smiling at a customer.","ex_cn":"接待員正對著一位顧客微笑。","ex_vi":"Nhân viên lễ tân đang mỉm cười với một khách hàng.","note":"","label":"Động tác / 動作","cloze":"The receptionist is _____ at a customer.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"holding","vi":["đang cầm","đang giữ"],"cn":"正在拿著；正在握著","ipa":"/ˈhoʊldɪŋ/","collocation":"hold a folder","ex_en":"The man is holding a folder.","ex_cn":"那位男士手上拿著一個資料夾。","ex_vi":"Người đàn ông đang cầm một bìa hồ sơ.","note":"","label":"Động tác / 動作","cloze":"The man is _____ a folder.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"folding","vi":["đang gấp","đang xếp gọn"],"cn":"正在摺疊","ipa":"/ˈfoʊldɪŋ/","collocation":"fold a piece of paper","ex_en":"The woman is folding a piece of paper.","ex_cn":"那位女士正在摺一張紙。","ex_vi":"Người phụ nữ đang gấp một tờ giấy.","note":"","label":"Động tác / 動作","cloze":"The woman is _____ a piece of paper.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"carrying","vi":["đang mang","đang xách","đang khiêng"],"cn":"正在攜帶；正在搬運","ipa":"/ˈkæriɪŋ/","collocation":"carry a box","ex_en":"A worker is carrying a box.","ex_cn":"一名工作人員正在搬一個箱子。","ex_vi":"Một công nhân đang mang một chiếc hộp.","note":"","label":"Động tác / 動作","cloze":"A worker is _____ a box.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"pushing","vi":["đang đẩy"],"cn":"正在推","ipa":"/ˈpʊʃɪŋ/","collocation":"push a cart","ex_en":"The man is pushing a cart.","ex_cn":"那位男士正在推手推車。","ex_vi":"Người đàn ông đang đẩy một chiếc xe đẩy.","note":"","label":"Động tác / 動作","cloze":"The man is _____ a cart.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"pulling","vi":["đang kéo"],"cn":"正在拉","ipa":"/ˈpʊlɪŋ/","collocation":"pull a suitcase","ex_en":"The traveler is pulling a suitcase.","ex_cn":"那位旅客正在拉行李箱。","ex_vi":"Người du khách đang kéo một chiếc va-li.","note":"","label":"Động tác / 動作","cloze":"The traveler is _____ a suitcase.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"typing","vi":["đang gõ máy","đang đánh máy"],"cn":"正在打字；正在鍵入","ipa":"/ˈtaɪpɪŋ/","collocation":"type on a keyboard","ex_en":"The employee is typing on a keyboard.","ex_cn":"那位員工正在鍵盤上打字。","ex_vi":"Nhân viên đang gõ bàn phím.","note":"","label":"Động tác / 動作","cloze":"The employee is _____ on a keyboard.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"touching","vi":["đang chạm vào"],"cn":"正在觸摸；碰觸","ipa":"/ˈtʌtʃɪŋ/","collocation":"touch the screen","ex_en":"The woman is touching the screen.","ex_cn":"那位女士正在觸碰螢幕。","ex_vi":"Người phụ nữ đang chạm vào màn hình.","note":"","label":"Động tác / 動作","cloze":"The woman is _____ the screen.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"reaching","vi":["đang với tới","vươn tay tới"],"cn":"正在伸手去拿；正在伸向","ipa":"/ˈriːtʃɪŋ/","collocation":"reach for a folder","ex_en":"The man is reaching for a folder.","ex_cn":"那位男士正伸手去拿一個資料夾。","ex_vi":"Người đàn ông đang với tay lấy một bìa hồ sơ.","note":"","label":"Động tác / 動作","cloze":"The man is _____ for a folder.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"reaching into","vi":["đang thò tay vào","đưa tay vào"],"cn":"正在把手伸進……","ipa":"/ˈriːtʃɪŋ ˈɪntuː/","collocation":"reach into a bag","ex_en":"The woman is reaching into her bag.","ex_cn":"那位女士正把手伸進她的包包裡。","ex_vi":"Người phụ nữ đang thò tay vào túi của mình.","note":"","label":"Động tác / 動作","cloze":"The woman is _____ her bag.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"hanging up","vi":["đang treo lên","đang móc lên"],"cn":"正在掛起；正在掛上","ipa":"/ˈhæŋɪŋ ʌp/","collocation":"hang up a coat","ex_en":"The man is hanging up his coat.","ex_cn":"那位男士正在把外套掛起來。","ex_vi":"Người đàn ông đang treo áo khoác lên.","note":"","label":"Động tác / 動作","cloze":"The man is _____ his coat.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"signing","vi":["đang ký","đang ký tên"],"cn":"正在簽名；正在簽署","ipa":"/ˈsaɪnɪŋ/","collocation":"sign a document","ex_en":"The customer is signing a document.","ex_cn":"那位顧客正在簽署一份文件。","ex_vi":"Khách hàng đang ký một tài liệu.","note":"","label":"Động tác / 動作","cloze":"The customer is _____ a document.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"writing","vi":["đang viết"],"cn":"正在寫；正在書寫","ipa":"/ˈraɪtɪŋ/","collocation":"write a note","ex_en":"The woman is writing a note.","ex_cn":"那位女士正在寫便條。","ex_vi":"Người phụ nữ đang viết một ghi chú.","note":"","label":"Động tác / 動作","cloze":"The woman is _____ a note.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"installing","vi":["đang lắp đặt","đang cài đặt"],"cn":"正在安裝","ipa":"/ɪnˈstɔːlɪŋ/","collocation":"install equipment","ex_en":"The workers are installing some equipment.","ex_cn":"工作人員正在安裝一些設備。","ex_vi":"Các công nhân đang lắp đặt một số thiết bị.","note":"","label":"Động tác / 動作","cloze":"The workers are _____ some equipment.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"replacing","vi":["đang thay thế","đang thay mới"],"cn":"正在更換；正在替換","ipa":"/rɪˈpleɪsɪŋ/","collocation":"replace a light bulb","ex_en":"A worker is replacing a light bulb.","ex_cn":"一名工作人員正在更換燈泡。","ex_vi":"Một công nhân đang thay bóng đèn.","note":"","label":"Động tác / 動作","cloze":"A worker is _____ a light bulb.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"pointing at","vi":["đang chỉ vào"],"cn":"正指著……","ipa":"/ˈpɔɪntɪŋ æt/","collocation":"point at a chart","ex_en":"The manager is pointing at a chart.","ex_cn":"經理正指著一張圖表。","ex_vi":"Người quản lý đang chỉ vào một biểu đồ.","note":"","label":"Động tác / 動作","cloze":"The manager is _____ a chart.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"using","vi":["đang sử dụng","đang dùng"],"cn":"正在使用","ipa":"/ˈjuːzɪŋ/","collocation":"use a computer","ex_en":"The employee is using a computer.","ex_cn":"那位員工正在使用電腦。","ex_vi":"Nhân viên đang sử dụng máy tính.","note":"","label":"Động tác / 動作","cloze":"The employee is _____ a computer.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"lifting","vi":["đang nâng lên","đang nhấc lên"],"cn":"正在抬起；正在舉起","ipa":"/ˈlɪftɪŋ/","collocation":"lift a box","ex_en":"The worker is lifting a box.","ex_cn":"那名工作人員正在抬起一個箱子。","ex_vi":"Công nhân đang nhấc một chiếc hộp lên.","note":"","label":"Động tác / 動作","cloze":"The worker is _____ a box.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"walking","vi":["đang đi bộ"],"cn":"正在走路；步行","ipa":"/ˈwɔːkɪŋ/","collocation":"walk along a sidewalk","ex_en":"Some pedestrians are walking along the sidewalk.","ex_cn":"一些行人正沿著人行道行走。","ex_vi":"Một số người đi bộ đang đi dọc theo vỉa hè.","note":"","label":"Động tác / 動作","cloze":"Some pedestrians are _____ along the sidewalk.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"running","vi":["đang chạy"],"cn":"正在跑步；正在奔跑","ipa":"/ˈrʌnɪŋ/","collocation":"run through a park","ex_en":"A man is running through the park.","ex_cn":"一名男子正在公園裡跑步。","ex_vi":"Một người đàn ông đang chạy qua công viên.","note":"","label":"Động tác / 動作","cloze":"A man is _____ through the park.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"kneeling","vi":["đang quỳ","quỳ gối"],"cn":"正在跪著；跪下","ipa":"/ˈniːlɪŋ/","collocation":"kneel on the floor","ex_en":"The worker is kneeling on the floor.","ex_cn":"那名工作人員正跪在地板上。","ex_vi":"Công nhân đang quỳ trên sàn.","note":"","label":"Động tác / 動作","cloze":"The worker is _____ on the floor.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"climbing","vi":["đang leo","đang trèo"],"cn":"正在攀爬","ipa":"/ˈklaɪmɪŋ/","collocation":"climb the stairs","ex_en":"A woman is climbing the stairs.","ex_cn":"一名女子正在走上樓梯。","ex_vi":"Một người phụ nữ đang đi lên cầu thang.","note":"","label":"Động tác / 動作","cloze":"A woman is _____ the stairs.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"sitting","vi":["đang ngồi"],"cn":"正坐著","ipa":"/ˈsɪtɪŋ/","collocation":"sit at a desk","ex_en":"The man is sitting at a desk.","ex_cn":"那位男士正坐在辦公桌旁。","ex_vi":"Người đàn ông đang ngồi tại bàn làm việc.","note":"","label":"Động tác / 動作","cloze":"The man is _____ at a desk.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"lying","vi":["đang nằm"],"cn":"正躺著","ipa":"/ˈlaɪɪŋ/","collocation":"lie on the grass","ex_en":"A man is lying on the grass.","ex_cn":"一名男子正躺在草地上。","ex_vi":"Một người đàn ông đang nằm trên bãi cỏ.","note":"","label":"Động tác / 動作","cloze":"A man is _____ on the grass.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"standing","vi":["đang đứng"],"cn":"正站著","ipa":"/ˈstændɪŋ/","collocation":"stand near the counter","ex_en":"A customer is standing near the counter.","ex_cn":"一位顧客正站在櫃檯附近。","ex_vi":"Một khách hàng đang đứng gần quầy.","note":"","label":"Động tác / 動作","cloze":"A customer is _____ near the counter.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"cleaning","vi":["đang dọn dẹp","đang làm sạch"],"cn":"正在清潔；正在打掃","ipa":"/ˈkliːnɪŋ/","collocation":"clean a window","ex_en":"The employee is cleaning a window.","ex_cn":"那位員工正在清潔窗戶。","ex_vi":"Nhân viên đang lau cửa sổ.","note":"","label":"Động tác / 動作","cloze":"The employee is _____ a window.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"wiping","vi":["đang lau","đang lau chùi"],"cn":"正在擦拭；正在擦","ipa":"/ˈwaɪpɪŋ/","collocation":"wipe a table","ex_en":"The waiter is wiping a table.","ex_cn":"服務生正在擦桌子。","ex_vi":"Nhân viên phục vụ đang lau bàn.","note":"","label":"Động tác / 動作","cloze":"The waiter is _____ a table.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"sweeping","vi":["đang quét"],"cn":"正在掃地；正在清掃","ipa":"/ˈswiːpɪŋ/","collocation":"sweep the floor","ex_en":"A worker is sweeping the floor.","ex_cn":"一名工作人員正在掃地。","ex_vi":"Một công nhân đang quét sàn.","note":"","label":"Động tác / 動作","cloze":"A worker is _____ the floor.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"washing","vi":["đang rửa","đang giặt"],"cn":"正在清洗；正在洗","ipa":"/ˈwɑːʃɪŋ/","collocation":"wash the dishes","ex_en":"Someone is washing the dishes.","ex_cn":"有人正在洗碗。","ex_vi":"Có người đang rửa bát đĩa.","note":"","label":"Động tác / 動作","cloze":"Someone is _____ the dishes.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"painting","vi":["đang sơn","đang vẽ"],"cn":"正在油漆；正在繪畫","ipa":"/ˈpeɪntɪŋ/","collocation":"paint a wall","ex_en":"The worker is painting a wall.","ex_cn":"那名工作人員正在粉刷牆面。","ex_vi":"Công nhân đang sơn một bức tường.","note":"","label":"Động tác / 動作","cloze":"The worker is _____ a wall.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"fixing","vi":["đang sửa","đang khắc phục"],"cn":"正在修理；正在修復","ipa":"/ˈfɪksɪŋ/","collocation":"fix a machine","ex_en":"A technician is fixing a machine.","ex_cn":"一名技術人員正在修理機器。","ex_vi":"Một kỹ thuật viên đang sửa máy.","note":"","label":"Động tác / 動作","cloze":"A technician is _____ a machine.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"repairing","vi":["đang sửa chữa","đang bảo trì"],"cn":"正在維修；正在修理","ipa":"/rɪˈperɪŋ/","collocation":"repair a printer","ex_en":"The technician is repairing a printer.","ex_cn":"技術人員正在修理印表機。","ex_vi":"Kỹ thuật viên đang sửa máy in.","note":"","label":"Động tác / 動作","cloze":"The technician is _____ a printer.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"lining up","vi":["đang xếp hàng","đang đứng thành hàng"],"cn":"正在排隊；正在列隊","ipa":"/ˈlaɪnɪŋ ʌp/","collocation":"line up outside","ex_en":"People are lining up outside the building.","ex_cn":"人們正在大樓外排隊。","ex_vi":"Mọi người đang xếp hàng bên ngoài tòa nhà.","note":"","label":"Động tác / 動作","cloze":"People are _____ outside the building.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"waiting in line","vi":["đang xếp hàng chờ"],"cn":"正在排隊等候","ipa":"/ˈweɪtɪŋ ɪn laɪn/","collocation":"wait in line at the counter","ex_en":"Several customers are waiting in line at the counter.","ex_cn":"幾位顧客正在櫃檯前排隊等候。","ex_vi":"Một số khách hàng đang xếp hàng chờ tại quầy.","note":"","label":"Động tác / 動作","cloze":"Several customers are _____ at the counter.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"opening","vi":["đang mở"],"cn":"正在打開","ipa":"/ˈoʊpənɪŋ/","collocation":"open a door","ex_en":"The woman is opening a door.","ex_cn":"那位女士正在開門。","ex_vi":"Người phụ nữ đang mở cửa.","note":"","label":"Động tác / 動作","cloze":"The woman is _____ a door.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"closing","vi":["đang đóng","đang khép lại"],"cn":"正在關閉；正在合上","ipa":"/ˈkloʊzɪŋ/","collocation":"close a drawer","ex_en":"The employee is closing a drawer.","ex_cn":"那位員工正在關抽屜。","ex_vi":"Nhân viên đang đóng ngăn kéo.","note":"","label":"Động tác / 動作","cloze":"The employee is _____ a drawer.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"turning on","vi":["đang bật thiết bị"],"cn":"正在開啟（電器／設備）","ipa":"/ˈtɝːnɪŋ ɑːn/","collocation":"turn on a light","ex_en":"The man is turning on a light.","ex_cn":"那位男士正在開燈。","ex_vi":"Người đàn ông đang bật đèn.","note":"","label":"Động tác / 動作","cloze":"The man is _____ a light.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"turning off","vi":["đang tắt thiết bị"],"cn":"正在關閉（電器／設備）","ipa":"/ˈtɝːnɪŋ ɔːf/","collocation":"turn off a computer","ex_en":"The employee is turning off the computer.","ex_cn":"那位員工正在關閉電腦。","ex_vi":"Nhân viên đang tắt máy tính.","note":"","label":"Động tác / 動作","cloze":"The employee is _____ the computer.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"paying","vi":["đang thanh toán","đang trả tiền"],"cn":"正在付款；正在支付","ipa":"/ˈpeɪɪŋ/","collocation":"pay for a purchase","ex_en":"The customer is paying for a purchase.","ex_cn":"那位顧客正在為購買的商品付款。","ex_vi":"Khách hàng đang thanh toán cho món hàng đã mua.","note":"","label":"Động tác / 動作","cloze":"The customer is _____ for a purchase.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"buying","vi":["đang mua","mua"],"cn":"正在購買；購買","ipa":"/ˈbaɪɪŋ/","collocation":"buy a ticket","ex_en":"The woman is buying a ticket.","ex_cn":"那位女士正在買票。","ex_vi":"Người phụ nữ đang mua vé.","note":"","label":"Động tác / 動作","cloze":"The woman is _____ a ticket.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"cooking","vi":["đang nấu ăn"],"cn":"正在做飯；正在烹飪","ipa":"/ˈkʊkɪŋ/","collocation":"cook a meal","ex_en":"A chef is cooking a meal.","ex_cn":"一名廚師正在做餐點。","ex_vi":"Một đầu bếp đang nấu một bữa ăn.","note":"","label":"Động tác / 動作","cloze":"A chef is _____ a meal.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"boarding","vi":["đang lên máy bay/tàu/xe"],"cn":"正在登機／上車／登船","ipa":"/ˈbɔːrdɪŋ/","collocation":"board a bus","ex_en":"Passengers are boarding a bus.","ex_cn":"乘客們正在上公車。","ex_vi":"Hành khách đang lên xe buýt.","note":"","label":"Động tác / 動作","cloze":"Passengers are _____ a bus.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"arranging","vi":["đang sắp xếp","đang bố trí"],"cn":"正在整理；正在安排；正在擺放","ipa":"/əˈreɪndʒɪŋ/","collocation":"arrange some flowers","ex_en":"The woman is arranging some flowers.","ex_cn":"那位女士正在整理花朵。","ex_vi":"Người phụ nữ đang sắp xếp hoa.","note":"","label":"Động tác / 動作","cloze":"The woman is _____ some flowers.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"watering","vi":["đang tưới nước"],"cn":"正在澆水","ipa":"/ˈwɔːtərɪŋ/","collocation":"water the plants","ex_en":"A man is watering the plants.","ex_cn":"一名男子正在澆花。","ex_vi":"Một người đàn ông đang tưới cây.","note":"","label":"Động tác / 動作","cloze":"A man is _____ the plants.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"removing","vi":["đang tháo ra","đang dỡ bỏ","đang loại bỏ"],"cn":"正在移除；正在拆下","ipa":"/rɪˈmuːvɪŋ/","collocation":"remove a box","ex_en":"The worker is removing a box from the shelf.","ex_cn":"那名工作人員正在從架子上搬下一個箱子。","ex_vi":"Công nhân đang lấy một chiếc hộp xuống khỏi kệ.","note":"","label":"Động tác / 動作","cloze":"The worker is _____ a box from the shelf.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"moving","vi":["đang di chuyển","đang chuyển"],"cn":"正在移動；正在搬動","ipa":"/ˈmuːvɪŋ/","collocation":"move some furniture","ex_en":"The workers are moving some furniture.","ex_cn":"工作人員正在搬動一些家具。","ex_vi":"Các công nhân đang di chuyển một số đồ nội thất.","note":"","label":"Động tác / 動作","cloze":"The workers are _____ some furniture.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"picking up","vi":["đang nhặt lên","đang lấy/cầm lên"],"cn":"正在撿起；正在拿起","ipa":"/ˈpɪkɪŋ ʌp/","collocation":"pick up a package","ex_en":"The man is picking up a package.","ex_cn":"那位男士正在拿起一個包裹。","ex_vi":"Người đàn ông đang nhặt một kiện hàng lên.","note":"","label":"Động tác / 動作","cloze":"The man is _____ a package.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"wearing","vi":["đang mặc","đang đeo"],"cn":"正穿著；正戴著","ipa":"/ˈwerɪŋ/","collocation":"wear a suit","ex_en":"The man is wearing a suit.","ex_cn":"那位男士穿著西裝。","ex_vi":"Người đàn ông đang mặc vest.","note":"","label":"Động tác / 動作","cloze":"The man is _____ a suit.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"leaning over","vi":["đang cúi người qua","đang khom người"],"cn":"正俯身；正彎腰靠近","ipa":"/ˈliːnɪŋ ˈoʊvər/","collocation":"lean over a desk","ex_en":"The woman is leaning over a desk.","ex_cn":"那位女士正俯身靠在辦公桌上方。","ex_vi":"Người phụ nữ đang cúi người qua bàn làm việc.","note":"","label":"Động tác / 動作","cloze":"The woman is _____ a desk.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"leaning against","vi":["đang tựa vào","dựa vào"],"cn":"正倚靠著……；靠在……上","ipa":"/ˈliːnɪŋ əˈɡenst/","collocation":"lean against a wall","ex_en":"A bicycle is leaning against a wall.","ex_cn":"一輛自行車正靠在牆上。","ex_vi":"Một chiếc xe đạp đang tựa vào tường.","note":"","label":"Động tác / 動作","cloze":"A bicycle is _____ a wall.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"visiting","vi":["đang thăm","đang tham quan"],"cn":"正在拜訪；正在參觀","ipa":"/ˈvɪzɪtɪŋ/","collocation":"visit a museum","ex_en":"Several tourists are visiting a museum.","ex_cn":"幾位遊客正在參觀博物館。","ex_vi":"Một số du khách đang tham quan bảo tàng.","note":"","label":"Động tác / 動作","cloze":"Several tourists are _____ a museum.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"above","vi":["ở phía trên","ở trên"],"cn":"在……上方；高於","ipa":"/əˈbʌv/","collocation":"above the desk","ex_en":"A light fixture is hanging above the desk.","ex_cn":"一盞燈具懸掛在辦公桌上方。","ex_vi":"Một bộ đèn đang treo phía trên bàn làm việc.","note":"","label":"Vị trí / 位置","cloze":"A light fixture is hanging _____ the desk.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"under","vi":["ở dưới","bên dưới"],"cn":"在……下面；在……下方","ipa":"/ˈʌndər/","collocation":"under the table","ex_en":"A box has been placed under the table.","ex_cn":"一個箱子已經放在桌子下面。","ex_vi":"Một chiếc hộp đã được đặt dưới bàn.","note":"","label":"Vị trí / 位置","cloze":"A box has been placed _____ the table.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"beside","vi":["bên cạnh","cạnh"],"cn":"在……旁邊","ipa":"/bɪˈsaɪd/","collocation":"beside the window","ex_en":"A chair is positioned beside the window.","ex_cn":"一張椅子放在窗戶旁邊。","ex_vi":"Một chiếc ghế được đặt bên cạnh cửa sổ.","note":"","label":"Vị trí / 位置","cloze":"A chair is positioned _____ the window.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"next to","vi":["ngay bên cạnh","sát cạnh"],"cn":"緊鄰；就在……旁邊","ipa":"/ˈnekst tuː/","collocation":"next to the printer","ex_en":"The filing cabinet is next to the printer.","ex_cn":"檔案櫃就在印表機旁邊。","ex_vi":"Tủ hồ sơ nằm ngay bên cạnh máy in.","note":"","label":"Vị trí / 位置","cloze":"The filing cabinet is _____ the printer.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"near","vi":["gần","ở gần"],"cn":"在……附近；靠近","ipa":"/nɪr/","collocation":"near the entrance","ex_en":"Several people are standing near the entrance.","ex_cn":"幾個人正站在入口附近。","ex_vi":"Một số người đang đứng gần lối vào.","note":"","label":"Vị trí / 位置","cloze":"Several people are standing _____ the entrance.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"behind","vi":["ở phía sau","đằng sau"],"cn":"在……後面","ipa":"/bɪˈhaɪnd/","collocation":"behind the counter","ex_en":"An employee is standing behind the counter.","ex_cn":"一名員工正站在櫃檯後面。","ex_vi":"Một nhân viên đang đứng phía sau quầy.","note":"","label":"Vị trí / 位置","cloze":"An employee is standing _____ the counter.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"in front of","vi":["ở phía trước","trước"],"cn":"在……前面","ipa":"/ɪn ˈfrʌnt əv/","collocation":"in front of the building","ex_en":"A car is parked in front of the building.","ex_cn":"一輛汽車停在大樓前面。","ex_vi":"Một chiếc ô tô đang đỗ phía trước tòa nhà.","note":"","label":"Vị trí / 位置","cloze":"A car is parked _____ the building.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"between","vi":["ở giữa hai người/vật"],"cn":"在兩者之間","ipa":"/bɪˈtwiːn/","collocation":"between two chairs","ex_en":"A small table is between two chairs.","ex_cn":"一張小桌子位在兩張椅子之間。","ex_vi":"Một chiếc bàn nhỏ nằm giữa hai chiếc ghế.","note":"","label":"Vị trí / 位置","cloze":"A small table is _____ two chairs.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"among","vi":["ở giữa nhiều người/vật","trong số"],"cn":"在……之中；在……當中","ipa":"/əˈmʌŋ/","collocation":"among the trees","ex_en":"A bench is located among the trees.","ex_cn":"一張長椅位在樹木之間。","ex_vi":"Một chiếc ghế băng được đặt giữa những hàng cây.","note":"","label":"Vị trí / 位置","cloze":"A bench is located _____ the trees.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"inside","vi":["bên trong","ở bên trong"],"cn":"在……裡面；內部","ipa":"/ɪnˈsaɪd/","collocation":"inside the building","ex_en":"Several customers are waiting inside the building.","ex_cn":"幾位顧客正在大樓裡面等候。","ex_vi":"Một số khách hàng đang chờ bên trong tòa nhà.","note":"","label":"Vị trí / 位置","cloze":"Several customers are waiting _____ the building.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"outside","vi":["bên ngoài","ở bên ngoài"],"cn":"在……外面；外部","ipa":"/ˌaʊtˈsaɪd/","collocation":"outside the office","ex_en":"Some people are talking outside the office.","ex_cn":"有些人正在辦公室外面交談。","ex_vi":"Một số người đang nói chuyện bên ngoài văn phòng.","note":"","label":"Vị trí / 位置","cloze":"Some people are talking _____ the office.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"opposite","vi":["đối diện","ở phía đối diện"],"cn":"在……對面；相對的","ipa":"/ˈɑːpəzɪt/","collocation":"opposite the station","ex_en":"The hotel is opposite the station.","ex_cn":"飯店位在車站對面。","ex_vi":"Khách sạn nằm đối diện nhà ga.","note":"","label":"Vị trí / 位置","cloze":"The hotel is _____ the station.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"across from","vi":["đối diện với"],"cn":"在……正對面","ipa":"/əˈkrɔːs frəm/","collocation":"across from the bank","ex_en":"The post office is across from the bank.","ex_cn":"郵局位在銀行正對面。","ex_vi":"Bưu điện nằm đối diện ngân hàng.","note":"","label":"Vị trí / 位置","cloze":"The post office is _____ the bank.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"around","vi":["xung quanh","quanh"],"cn":"在……周圍；環繞","ipa":"/əˈraʊnd/","collocation":"around the table","ex_en":"Several employees are sitting around the table.","ex_cn":"幾位員工正圍著桌子坐著。","ex_vi":"Một số nhân viên đang ngồi xung quanh bàn.","note":"","label":"Vị trí / 位置","cloze":"Several employees are sitting _____ the table.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"along","vi":["dọc theo","men theo"],"cn":"沿著","ipa":"/əˈlɔːŋ/","collocation":"along the road","ex_en":"Trees have been planted along the road.","ex_cn":"道路兩旁已經種了樹。","ex_vi":"Cây đã được trồng dọc theo con đường.","note":"","label":"Vị trí / 位置","cloze":"Trees have been planted _____ the road.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"across","vi":["băng qua","ngang qua","ở phía bên kia"],"cn":"穿過；橫過；在另一邊","ipa":"/əˈkrɔːs/","collocation":"across the street","ex_en":"The woman is walking across the street.","ex_cn":"那位女士正穿過街道。","ex_vi":"Người phụ nữ đang đi băng qua đường.","note":"","label":"Vị trí / 位置","cloze":"The woman is walking _____ the street.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"theater","vi":["nhà hát","rạp chiếu phim"],"cn":"劇院；戲院；電影院","ipa":"/ˈθiːətər/","collocation":"movie theater","ex_en":"The theater is located near the station.","ex_cn":"劇院位在車站附近。","ex_vi":"Rạp hát nằm gần nhà ga.","note":"","label":"Địa điểm / 地點","cloze":"The _____ is located near the station.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"restaurant","vi":["nhà hàng"],"cn":"餐廳","ipa":"/ˈrestərɑːnt/","collocation":"restaurant entrance","ex_en":"Several customers are waiting outside the restaurant.","ex_cn":"幾位顧客正在餐廳外面等候。","ex_vi":"Một số khách hàng đang chờ bên ngoài nhà hàng.","note":"","label":"Địa điểm / 地點","cloze":"Several customers are waiting outside the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"cafeteria","vi":["căng tin","nhà ăn tự phục vụ"],"cn":"自助餐廳；員工餐廳；食堂","ipa":"/ˌkæfəˈtɪriə/","collocation":"office cafeteria","ex_en":"Employees are having lunch in the cafeteria.","ex_cn":"員工們正在員工餐廳吃午餐。","ex_vi":"Các nhân viên đang ăn trưa trong căng tin.","note":"","label":"Địa điểm / 地點","cloze":"Employees are having lunch in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"dining area","vi":["khu vực ăn uống","khu dùng bữa"],"cn":"用餐區","ipa":"/ˈdaɪnɪŋ ˌeriə/","collocation":"outdoor dining area","ex_en":"Several tables have been set up in the dining area.","ex_cn":"用餐區裡已經擺放了幾張桌子。","ex_vi":"Một số bàn đã được bố trí trong khu vực ăn uống.","note":"","label":"Địa điểm / 地點","cloze":"Several tables have been set up in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"park","vi":["công viên"],"cn":"公園","ipa":"/pɑːrk/","collocation":"public park","ex_en":"People are relaxing in the park.","ex_cn":"人們正在公園裡休息。","ex_vi":"Mọi người đang thư giãn trong công viên.","note":"","label":"Địa điểm / 地點","cloze":"People are relaxing in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"grassy area","vi":["khu vực có cỏ","bãi cỏ"],"cn":"草地；草坪區域","ipa":"/ˈɡræsi ˌeriə/","collocation":"grassy area near the lake","ex_en":"Some people are sitting in a grassy area.","ex_cn":"有些人坐在草地上。","ex_vi":"Một số người đang ngồi trên khu vực có cỏ.","note":"","label":"Địa điểm / 地點","cloze":"Some people are sitting in a _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"bridge","vi":["cây cầu"],"cn":"橋；橋樑","ipa":"/brɪdʒ/","collocation":"cross a bridge","ex_en":"Several vehicles are crossing the bridge.","ex_cn":"幾輛車正在通過橋樑。","ex_vi":"Một số phương tiện đang đi qua cầu.","note":"","label":"Địa điểm / 地點","cloze":"Several vehicles are crossing the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"fishing pier","vi":["cầu tàu câu cá","bến câu cá"],"cn":"釣魚碼頭；釣魚棧橋","ipa":"/ˈfɪʃɪŋ pɪr/","collocation":"walk along a fishing pier","ex_en":"People are walking along the fishing pier.","ex_cn":"人們正沿著釣魚碼頭行走。","ex_vi":"Mọi người đang đi dọc theo cầu tàu câu cá.","note":"","label":"Địa điểm / 地點","cloze":"People are walking along the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"station","vi":["nhà ga","trạm"],"cn":"車站；站","ipa":"/ˈsteɪʃən/","collocation":"train station","ex_en":"Passengers are waiting at the station.","ex_cn":"乘客們正在車站等候。","ex_vi":"Hành khách đang chờ tại nhà ga.","note":"","label":"Địa điểm / 地點","cloze":"Passengers are waiting at the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"airport","vi":["sân bay"],"cn":"機場","ipa":"/ˈerpɔːrt/","collocation":"airport terminal","ex_en":"Travelers are waiting in the airport terminal.","ex_cn":"旅客們正在機場航廈裡等候。","ex_vi":"Các hành khách đang chờ trong nhà ga sân bay.","note":"","label":"Địa điểm / 地點","cloze":"Travelers are waiting in the _____ terminal.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"hotel","vi":["khách sạn"],"cn":"飯店；旅館","ipa":"/hoʊˈtel/","collocation":"hotel lobby","ex_en":"Guests are checking in at the hotel.","ex_cn":"旅客正在飯店辦理入住手續。","ex_vi":"Khách đang làm thủ tục nhận phòng tại khách sạn.","note":"","label":"Địa điểm / 地點","cloze":"Guests are checking in at the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"office","vi":["văn phòng"],"cn":"辦公室","ipa":"/ˈɔːfɪs/","collocation":"office building","ex_en":"Several people are working in the office.","ex_cn":"幾個人正在辦公室裡工作。","ex_vi":"Một số người đang làm việc trong văn phòng.","note":"","label":"Địa điểm / 地點","cloze":"Several people are working in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"lobby","vi":["sảnh","tiền sảnh"],"cn":"大廳；門廳","ipa":"/ˈlɑːbi/","collocation":"hotel lobby","ex_en":"Some guests are sitting in the lobby.","ex_cn":"幾位旅客正坐在大廳裡。","ex_vi":"Một số khách đang ngồi trong sảnh.","note":"","label":"Địa điểm / 地點","cloze":"Some guests are sitting in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"store","vi":["cửa hàng","cửa hiệu"],"cn":"商店；店家","ipa":"/stɔːr/","collocation":"department store","ex_en":"Customers are browsing in the store.","ex_cn":"顧客們正在店內瀏覽商品。","ex_vi":"Khách hàng đang xem hàng trong cửa hàng.","note":"","label":"Địa điểm / 地點","cloze":"Customers are browsing in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"shop","vi":["cửa hàng","tiệm"],"cn":"商店；店鋪","ipa":"/ʃɑːp/","collocation":"gift shop","ex_en":"A customer is entering the shop.","ex_cn":"一位顧客正走進商店。","ex_vi":"Một khách hàng đang bước vào cửa hàng.","note":"","label":"Địa điểm / 地點","cloze":"A customer is entering the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"market","vi":["chợ","thị trường"],"cn":"市場；市集","ipa":"/ˈmɑːrkɪt/","collocation":"outdoor market","ex_en":"Fresh produce is displayed at the market.","ex_cn":"新鮮蔬果陳列在市場裡。","ex_vi":"Rau củ quả tươi được bày bán tại chợ.","note":"","label":"Địa điểm / 地點","cloze":"Fresh produce is displayed at the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"street","vi":["đường phố","phố"],"cn":"街道；街","ipa":"/striːt/","collocation":"cross the street","ex_en":"Pedestrians are crossing the street.","ex_cn":"行人正在穿越街道。","ex_vi":"Người đi bộ đang băng qua đường.","note":"","label":"Địa điểm / 地點","cloze":"Pedestrians are crossing the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"road","vi":["đường","con đường"],"cn":"道路；公路","ipa":"/roʊd/","collocation":"along the road","ex_en":"Several cars are traveling along the road.","ex_cn":"幾輛汽車正沿著道路行駛。","ex_vi":"Một số ô tô đang chạy dọc theo con đường.","note":"","label":"Địa điểm / 地點","cloze":"Several cars are traveling along the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"sidewalk","vi":["vỉa hè"],"cn":"人行道","ipa":"/ˈsaɪdwɔːk/","collocation":"walk on the sidewalk","ex_en":"People are walking on the sidewalk.","ex_cn":"人們正走在人行道上。","ex_vi":"Mọi người đang đi bộ trên vỉa hè.","note":"","label":"Địa điểm / 地點","cloze":"People are walking on the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"walkway","vi":["lối đi bộ","đường đi bộ"],"cn":"人行通道；步道","ipa":"/ˈwɔːkweɪ/","collocation":"covered walkway","ex_en":"Several people are walking along the walkway.","ex_cn":"幾個人正沿著步道行走。","ex_vi":"Một số người đang đi dọc theo lối đi bộ.","note":"","label":"Địa điểm / 地點","cloze":"Several people are walking along the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"path","vi":["lối đi","đường mòn"],"cn":"小路；步道；路徑","ipa":"/pæθ/","collocation":"garden path","ex_en":"A man is walking along a garden path.","ex_cn":"一名男子正沿著花園小徑行走。","ex_vi":"Một người đàn ông đang đi dọc theo lối đi trong vườn.","note":"","label":"Địa điểm / 地點","cloze":"A man is walking along a garden _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"harbor","vi":["cảng","bến cảng","vịnh cảng"],"cn":"港灣；港口","ipa":"/ˈhɑːrbər/","collocation":"harbor area","ex_en":"Several boats are docked in the harbor.","ex_cn":"幾艘船停靠在港灣裡。","ex_vi":"Một số thuyền đang neo đậu trong cảng.","note":"","label":"Địa điểm / 地點","cloze":"Several boats are docked in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"port","vi":["cảng","cảng biển"],"cn":"港口；海港","ipa":"/pɔːrt/","collocation":"shipping port","ex_en":"Cargo is being unloaded at the port.","ex_cn":"貨物正在港口卸載。","ex_vi":"Hàng hóa đang được dỡ xuống tại cảng.","note":"","label":"Địa điểm / 地點","cloze":"Cargo is being unloaded at the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"library","vi":["thư viện"],"cn":"圖書館","ipa":"/ˈlaɪbreri/","collocation":"public library","ex_en":"Students are studying in the library.","ex_cn":"學生們正在圖書館裡讀書。","ex_vi":"Sinh viên đang học trong thư viện.","note":"","label":"Địa điểm / 地點","cloze":"Students are studying in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"museum","vi":["bảo tàng"],"cn":"博物館","ipa":"/mjuˈziːəm/","collocation":"art museum","ex_en":"Visitors are walking through the museum.","ex_cn":"參觀者正在博物館內走動。","ex_vi":"Khách tham quan đang đi qua bảo tàng.","note":"","label":"Địa điểm / 地點","cloze":"Visitors are walking through the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"kitchen","vi":["nhà bếp","bếp"],"cn":"廚房","ipa":"/ˈkɪtʃən/","collocation":"restaurant kitchen","ex_en":"A chef is working in the kitchen.","ex_cn":"一名廚師正在廚房工作。","ex_vi":"Một đầu bếp đang làm việc trong bếp.","note":"","label":"Địa điểm / 地點","cloze":"A chef is working in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"garage","vi":["ga-ra","nhà để xe"],"cn":"車庫","ipa":"/ɡəˈrɑːʒ/","collocation":"parking garage","ex_en":"Several cars are parked in the garage.","ex_cn":"幾輛汽車停在車庫裡。","ex_vi":"Một số ô tô đang đỗ trong gara.","note":"","label":"Địa điểm / 地點","cloze":"Several cars are parked in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"garden","vi":["khu vườn","vườn"],"cn":"花園；庭園","ipa":"/ˈɡɑːrdən/","collocation":"flower garden","ex_en":"Flowers have been planted in the garden.","ex_cn":"花已經種在花園裡。","ex_vi":"Hoa đã được trồng trong vườn.","note":"","label":"Địa điểm / 地點","cloze":"Flowers have been planted in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"yard","vi":["sân","sân quanh nhà"],"cn":"院子；庭院","ipa":"/jɑːrd/","collocation":"front yard","ex_en":"A man is working in the yard.","ex_cn":"一名男子正在院子裡工作。","ex_vi":"Một người đàn ông đang làm việc ngoài sân.","note":"","label":"Địa điểm / 地點","cloze":"A man is working in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"porch","vi":["hiên nhà","mái hiên trước nhà"],"cn":"門廊；前廊","ipa":"/pɔːrtʃ/","collocation":"front porch","ex_en":"Two chairs have been placed on the porch.","ex_cn":"兩張椅子已經放在門廊上。","ex_vi":"Hai chiếc ghế đã được đặt trên hiên nhà.","note":"","label":"Địa điểm / 地點","cloze":"Two chairs have been placed on the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"patio","vi":["sân hiên","sân lát ngoài trời"],"cn":"露臺；戶外庭院","ipa":"/ˈpætioʊ/","collocation":"outdoor patio","ex_en":"Customers are seated on the patio.","ex_cn":"顧客們坐在戶外露台上。","ex_vi":"Khách hàng đang ngồi ở sân hiên.","note":"","label":"Địa điểm / 地點","cloze":"Customers are seated on the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"balcony","vi":["ban công"],"cn":"陽台","ipa":"/ˈbælkəni/","collocation":"hotel balcony","ex_en":"A woman is standing on the balcony.","ex_cn":"一名女子正站在陽台上。","ex_vi":"Một người phụ nữ đang đứng trên ban công.","note":"","label":"Địa điểm / 地點","cloze":"A woman is standing on the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"warehouse","vi":["nhà kho","kho hàng"],"cn":"倉庫","ipa":"/ˈwerhaʊs/","collocation":"storage warehouse","ex_en":"Boxes are stacked inside the warehouse.","ex_cn":"箱子堆放在倉庫裡。","ex_vi":"Các thùng hàng được xếp chồng bên trong nhà kho.","note":"","label":"Địa điểm / 地點","cloze":"Boxes are stacked inside the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"shore","vi":["bờ biển","bờ hồ","bờ nước"],"cn":"岸邊；海岸；湖岸","ipa":"/ʃɔːr/","collocation":"along the shore","ex_en":"People are walking along the shore.","ex_cn":"人們正沿著岸邊行走。","ex_vi":"Mọi người đang đi dọc theo bờ nước.","note":"","label":"Địa điểm / 地點","cloze":"People are walking along the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"river","vi":["sông","dòng sông"],"cn":"河；河流","ipa":"/ˈrɪvər/","collocation":"across the river","ex_en":"A bridge extends across the river.","ex_cn":"一座橋橫跨河流。","ex_vi":"Một cây cầu bắc qua sông.","note":"","label":"Địa điểm / 地點","cloze":"A bridge extends across the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"lake","vi":["hồ","hồ nước"],"cn":"湖；湖泊","ipa":"/leɪk/","collocation":"beside the lake","ex_en":"Several people are sitting beside the lake.","ex_cn":"幾個人正坐在湖邊。","ex_vi":"Một số người đang ngồi bên hồ.","note":"","label":"Địa điểm / 地點","cloze":"Several people are sitting beside the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"pond","vi":["ao","hồ nhỏ"],"cn":"池塘；小池","ipa":"/pɑːnd/","collocation":"garden pond","ex_en":"Some ducks are swimming in the pond.","ex_cn":"幾隻鴨子正在池塘裡游泳。","ex_vi":"Một vài con vịt đang bơi trong ao.","note":"","label":"Địa điểm / 地點","cloze":"Some ducks are swimming in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"computer monitor","vi":["màn hình máy tính"],"cn":"電腦螢幕；顯示器","ipa":"/kəmˈpjuːtər ˈmɑːnɪtər/","collocation":"look at a computer monitor","ex_en":"The employee is looking at a computer monitor.","ex_cn":"那位員工正在看電腦螢幕。","ex_vi":"Nhân viên đang nhìn vào màn hình máy tính.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The employee is looking at a _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"bulletin board","vi":["bảng thông báo","bảng tin"],"cn":"公告欄；布告欄","ipa":"/ˈbʊlətɪn bɔːrd/","collocation":"post a notice on a bulletin board","ex_en":"Several notices are posted on the bulletin board.","ex_cn":"幾張公告貼在公告欄上。","ex_vi":"Một số thông báo được dán trên bảng thông báo.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Several notices are posted on the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"printer","vi":["máy in"],"cn":"印表機","ipa":"/ˈprɪntər/","collocation":"office printer","ex_en":"A printer is positioned beside the desk.","ex_cn":"一台印表機放在辦公桌旁邊。","ex_vi":"Một máy in được đặt bên cạnh bàn làm việc.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A _____ is positioned beside the desk.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"filing cabinet","vi":["tủ hồ sơ","tủ đựng tài liệu"],"cn":"檔案櫃；文件櫃","ipa":"/ˈfaɪlɪŋ ˌkæbɪnət/","collocation":"open a filing cabinet","ex_en":"The employee is opening a filing cabinet.","ex_cn":"那位員工正在打開檔案櫃。","ex_vi":"Nhân viên đang mở tủ hồ sơ.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The employee is opening a _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"binder","vi":["bìa còng","tập hồ sơ còng"],"cn":"活頁夾；資料夾","ipa":"/ˈbaɪndər/","collocation":"place a binder on a shelf","ex_en":"Several binders are arranged on a shelf.","ex_cn":"幾個活頁夾整齊地放在架子上。","ex_vi":"Một số bìa còng được sắp xếp trên kệ.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Several _____s are arranged on a shelf.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"trash bin","vi":["thùng rác","sọt rác"],"cn":"垃圾桶","ipa":"/ˈtræʃ bɪn/","collocation":"empty a trash bin","ex_en":"A worker is emptying a trash bin.","ex_cn":"一名工作人員正在清空垃圾桶。","ex_vi":"Một công nhân đang đổ thùng rác.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A worker is emptying a _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"sofa","vi":["ghế sofa","ghế dài"],"cn":"沙發","ipa":"/ˈsoʊfə/","collocation":"sit on a sofa","ex_en":"A man is sitting on a sofa.","ex_cn":"一名男子正坐在沙發上。","ex_vi":"Một người đàn ông đang ngồi trên ghế sofa.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A man is sitting on a _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"picture frame","vi":["khung ảnh","khung tranh"],"cn":"相框；畫框","ipa":"/ˈpɪktʃər freɪm/","collocation":"picture frame on a desk","ex_en":"A picture frame has been placed on the desk.","ex_cn":"一個相框已經放在桌上。","ex_vi":"Một khung ảnh đã được đặt trên bàn.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A _____ has been placed on the desk.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"curtains","vi":["rèm cửa"],"cn":"窗簾","ipa":"/ˈkɝːtənz/","collocation":"open the curtains","ex_en":"The curtains have been opened.","ex_cn":"窗簾已經拉開。","ex_vi":"Rèm cửa đã được mở.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The _____ have been opened.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"carpet","vi":["thảm trải sàn","thảm lớn"],"cn":"地毯","ipa":"/ˈkɑːrpɪt/","collocation":"carpeted floor","ex_en":"The office floor is covered with carpet.","ex_cn":"辦公室地板鋪著地毯。","ex_vi":"Sàn văn phòng được trải thảm.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The office floor is covered with _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"rug","vi":["tấm thảm nhỏ","thảm rời"],"cn":"小地毯；地墊","ipa":"/rʌɡ/","collocation":"area rug","ex_en":"A rug has been laid out in front of the sofa.","ex_cn":"一張小地毯已經鋪在沙發前面。","ex_vi":"Một tấm thảm nhỏ đã được trải phía trước ghế sofa.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A _____ has been laid out in front of the sofa.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"statue","vi":["tượng","bức tượng"],"cn":"雕像；塑像","ipa":"/ˈstætʃuː/","collocation":"stone statue","ex_en":"A statue stands near the entrance.","ex_cn":"一座雕像立在入口附近。","ex_vi":"Một bức tượng đứng gần lối vào.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A _____ stands near the entrance.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"lamp","vi":["đèn","đèn bàn"],"cn":"燈；檯燈","ipa":"/læmp/","collocation":"desk lamp","ex_en":"A lamp has been placed on the desk.","ex_cn":"一盞燈已經放在桌上。","ex_vi":"Một chiếc đèn đã được đặt trên bàn.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A _____ has been placed on the desk.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"light fixture","vi":["đèn cố định","bộ đèn","thiết bị chiếu sáng"],"cn":"燈具；照明設備","ipa":"/ˈlaɪt ˌfɪkstʃər/","collocation":"ceiling light fixture","ex_en":"A light fixture is suspended from the ceiling.","ex_cn":"一盞燈具懸掛在天花板上。","ex_vi":"Một bộ đèn được treo từ trần nhà.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A _____ is suspended from the ceiling.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"ceiling","vi":["trần nhà"],"cn":"天花板","ipa":"/ˈsiːlɪŋ/","collocation":"from the ceiling","ex_en":"Several lights are hanging from the ceiling.","ex_cn":"幾盞燈從天花板上垂掛下來。","ex_vi":"Một số đèn đang treo từ trần nhà.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Several lights are hanging from the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"floor","vi":["sàn nhà","tầng"],"cn":"地板；樓層","ipa":"/flɔːr/","collocation":"sweep the floor","ex_en":"A worker is sweeping the floor.","ex_cn":"一名工作人員正在掃地。","ex_vi":"Một công nhân đang quét sàn.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A worker is sweeping the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"hanging on","vi":["đang treo trên"],"cn":"掛在……上","ipa":"/ˈhæŋɪŋ ɑːn/","collocation":"hanging on the wall","ex_en":"A picture is hanging on the wall.","ex_cn":"一幅畫掛在牆上。","ex_vi":"Một bức tranh đang treo trên tường.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A picture is _____ the wall.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"hanging from","vi":["đang treo từ","đang thả xuống từ"],"cn":"從……懸掛下來；吊在……下方","ipa":"/ˈhæŋɪŋ frəm/","collocation":"hanging from the ceiling","ex_en":"Several lamps are hanging from the ceiling.","ex_cn":"幾盞燈從天花板上垂掛下來。","ex_vi":"Một số chiếc đèn đang treo từ trần nhà.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Several lamps are _____ the ceiling.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"suspended from the wall","vi":["được treo/neo từ tường","được gắn treo trên tường"],"cn":"從牆上懸掛；懸掛在牆上","ipa":"/səˈspendɪd frəm ðə wɔːl/","collocation":"suspended from the wall","ex_en":"A decorative sign is suspended from the wall.","ex_cn":"一個裝飾牌懸掛在牆上。","ex_vi":"Một tấm biển trang trí được treo trên tường.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A decorative sign is _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"mounted on","vi":["được gắn trên","được lắp trên"],"cn":"安裝在……上；固定在……上","ipa":"/ˈmaʊntɪd ɑːn/","collocation":"mounted on the wall","ex_en":"A television is mounted on the wall.","ex_cn":"一台電視安裝在牆上。","ex_vi":"Một chiếc tivi được gắn trên tường.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A television is _____ the wall.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"stacked on","vi":["được xếp chồng trên"],"cn":"堆疊在……上；疊放在……上","ipa":"/stækt ɑːn/","collocation":"stacked on a shelf","ex_en":"Some boxes are stacked on a shelf.","ex_cn":"幾個箱子堆疊在架子上。","ex_vi":"Một số thùng được xếp chồng trên kệ.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Some boxes are _____ a shelf.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"piled up","vi":["được chất đống","chất thành đống"],"cn":"堆積起來；堆成一堆","ipa":"/paɪld ʌp/","collocation":"piled up on the table","ex_en":"Papers are piled up on the table.","ex_cn":"文件堆在桌上。","ex_vi":"Giấy tờ được chất thành đống trên bàn.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Papers are _____ on the table.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"scattered on","vi":["nằm rải rác trên","bị vương vãi trên"],"cn":"散落在……上；散佈在……上","ipa":"/ˈskætərd ɑːn/","collocation":"scattered on the floor","ex_en":"Some leaves are scattered on the ground.","ex_cn":"一些樹葉散落在地面上。","ex_vi":"Một số chiếc lá nằm rải rác trên mặt đất.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Some leaves are _____ the ground.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"displayed on","vi":["được trưng bày trên","được bày trên"],"cn":"展示在……上；陳列在……上","ipa":"/dɪˈspleɪd ɑːn/","collocation":"displayed on a shelf","ex_en":"Several products are displayed on a shelf.","ex_cn":"幾項商品陳列在架子上。","ex_vi":"Một số sản phẩm được trưng bày trên kệ.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Several products are _____ a shelf.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"set on","vi":["được đặt trên","đặt trên"],"cn":"放在……上；置於……上","ipa":"/set ɑːn/","collocation":"set on a table","ex_en":"A vase is set on the table.","ex_cn":"一個花瓶放在桌上。","ex_vi":"Một chiếc bình được đặt trên bàn.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A vase is _____ the table.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"are occupied","vi":["đang có người sử dụng","đã có người ngồi"],"cn":"有人使用；座位有人坐；已被佔用","ipa":"/ɑːr ˈɑːkjəpaɪd/","collocation":"seats are occupied","ex_en":"Most of the seats are occupied.","ex_cn":"大多數座位都有人坐。","ex_vi":"Hầu hết các chỗ ngồi đều đã có người ngồi.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Most of the seats _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"are unoccupied","vi":["đang trống","chưa có người sử dụng"],"cn":"空著；無人使用；未被佔用","ipa":"/ɑːr ˌʌnˈɑːkjəpaɪd/","collocation":"seats are unoccupied","ex_en":"Several seats are unoccupied.","ex_cn":"有幾個座位是空著的。","ex_vi":"Một số chỗ ngồi vẫn còn trống.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Several seats _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"floating on","vi":["đang nổi trên","trôi nổi trên"],"cn":"漂浮在……上","ipa":"/ˈfloʊtɪŋ ɑːn/","collocation":"floating on the water","ex_en":"Several boats are floating on the water.","ex_cn":"幾艘船漂浮在水面上。","ex_vi":"Một số thuyền đang nổi trên mặt nước.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Several boats are _____ the water.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"be planted","vi":["được trồng"],"cn":"被種植；種下","ipa":"/bi ˈplæntɪd/","collocation":"be planted along the road","ex_en":"Trees will be planted along the road.","ex_cn":"道路兩旁將會種樹。","ex_vi":"Cây sẽ được trồng dọc theo con đường.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Trees will _____ along the road.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been arranged","vi":["đã được sắp xếp","đã được bố trí"],"cn":"已被安排；已被整理；已排列好","ipa":"/hæv bɪn əˈreɪndʒd/","collocation":"have been arranged in rows","ex_en":"The chairs have been arranged in rows.","ex_cn":"椅子已經排成幾列。","ex_vi":"Những chiếc ghế đã được sắp xếp thành hàng.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The chairs _____ in rows.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been opened","vi":["đã được mở"],"cn":"已被打開","ipa":"/hæv bɪn ˈoʊpənd/","collocation":"have been opened for ventilation","ex_en":"The windows have been opened for ventilation.","ex_cn":"窗戶已經打開以利通風。","ex_vi":"Các cửa sổ đã được mở để thông gió.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The windows _____ for ventilation.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been pulled up","vi":["đã được kéo lên"],"cn":"已被拉起；已拉上","ipa":"/hæv bɪn pʊld ʌp/","collocation":"blinds have been pulled up","ex_en":"The blinds have been pulled up.","ex_cn":"百葉窗已經拉起來。","ex_vi":"Rèm cuốn đã được kéo lên.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The blinds _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been laid out","vi":["đã được bày ra","đã được sắp ra"],"cn":"已擺放好；已鋪開；已陳列","ipa":"/hæv bɪn leɪd aʊt/","collocation":"have been laid out on a table","ex_en":"Some documents have been laid out on the table.","ex_cn":"一些文件已經攤放在桌上。","ex_vi":"Một số tài liệu đã được bày ra trên bàn.","note":"","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Some documents _____ on the table.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been covered with","vi":["đã được phủ bằng","đã được che bằng"],"cn":"已被……覆蓋；已蓋上","ipa":"/hæv bɪn ˈkʌvərd wɪð/","collocation":"have been covered with cloth","ex_en":"The tables have been covered with white cloth.","ex_cn":"桌子已經蓋上白布。","ex_vi":"Các bàn đã được phủ khăn trắng.","note":"Cấu trúc bị động hiện tại hoàn thành: have been + V3. Chủ ngữ số nhiều.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The tables _____ white cloth.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been taken out","vi":["đã được lấy ra","đã được mang ra ngoài"],"cn":"已被拿出；已被搬出","ipa":"/hæv bɪn ˈteɪkən aʊt/","collocation":"have been taken out of the boxes","ex_en":"The items have been taken out of the boxes.","ex_cn":"物品已經從箱子裡拿出來。","ex_vi":"Các vật dụng đã được lấy ra khỏi hộp.","note":"have been + V3 = đã được...; take out = lấy/mang ra ngoài.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The items _____ of the boxes.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been placed","vi":["đã được đặt","đã được bố trí"],"cn":"已被放置；已擺放","ipa":"/hæv bɪn pleɪst/","collocation":"have been placed on a shelf","ex_en":"The boxes have been placed on a shelf.","ex_cn":"箱子已經放在架子上。","ex_vi":"Các thùng đã được đặt trên kệ.","note":"place thường dùng ở thể bị động trong TOEIC Part 1: have been placed + vị trí.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The boxes _____ on a shelf.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been lined up","vi":["đã được xếp thành hàng"],"cn":"已排成一列；已排列整齊","ipa":"/hæv bɪn laɪnd ʌp/","collocation":"have been lined up along the wall","ex_en":"The chairs have been lined up along the wall.","ex_cn":"椅子已經沿著牆壁排成一列。","ex_vi":"Những chiếc ghế đã được xếp thành hàng dọc theo tường.","note":"line up = xếp thành hàng; have been lined up = đã được xếp thành hàng.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The chairs _____ along the wall.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been displayed on","vi":["đã được trưng bày trên"],"cn":"已展示在……上；已陳列在……上","ipa":"/hæv bɪn dɪˈspleɪd ɑːn/","collocation":"have been displayed on tables","ex_en":"The products have been displayed on tables.","ex_cn":"商品已經陳列在桌上。","ex_vi":"Các sản phẩm đã được trưng bày trên bàn.","note":"display on = trưng bày trên bề mặt/kệ.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The products _____ tables.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been set on","vi":["đã được đặt trên"],"cn":"已被放在……上","ipa":"/hæv bɪn set ɑːn/","collocation":"have been set on the counter","ex_en":"Some dishes have been set on the counter.","ex_cn":"一些盤子已經放在櫃檯上。","ex_vi":"Một số đĩa đã được đặt trên quầy.","note":"set on = đặt trên; set có dạng V2/V3 giống nhau.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Some dishes _____ the counter.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been piled up","vi":["đã được chất đống"],"cn":"已堆積起來；已堆成一堆","ipa":"/hæv bɪn paɪld ʌp/","collocation":"have been piled up near the wall","ex_en":"Some boxes have been piled up near the wall.","ex_cn":"一些箱子已經堆放在牆邊。","ex_vi":"Một số thùng đã được chất thành đống gần tường.","note":"pile up = chất thành đống.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Some boxes _____ near the wall.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"have been swept","vi":["đã được quét","đã được quét dọn"],"cn":"已被清掃；已打掃過","ipa":"/hæv bɪn swept/","collocation":"floors have been swept","ex_en":"The floors have been swept.","ex_cn":"地板已經清掃過了。","ex_vi":"Sàn nhà đã được quét sạch.","note":"sweep → swept → swept. have been swept = đã được quét.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The floors _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"has been placed","vi":["đã được đặt","đã được để"],"cn":"已被放置；已放在","ipa":"/hæz bɪn pleɪst/","collocation":"has been placed on a desk","ex_en":"A laptop has been placed on a desk.","ex_cn":"一台筆記型電腦已經放在桌上。","ex_vi":"Một chiếc máy tính xách tay đã được đặt trên bàn.","note":"Chủ ngữ số ít → has been + V3.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A laptop _____ on a desk.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"has been emptied","vi":["đã được làm trống","đã được đổ hết"],"cn":"已被清空；已被倒空","ipa":"/hæz bɪn ˈemptid/","collocation":"has been emptied","ex_en":"The trash bin has been emptied.","ex_cn":"垃圾桶已經清空。","ex_vi":"Thùng rác đã được đổ hết.","note":"empty vừa là tính từ vừa là động từ; emptied = đã được làm trống.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The trash bin _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"has been spilled","vi":["đã bị đổ ra","đã bị làm tràn"],"cn":"已灑出；已潑出","ipa":"/hæz bɪn spɪld/","collocation":"has been spilled on the floor","ex_en":"Some water has been spilled on the floor.","ex_cn":"一些水灑在地板上。","ex_vi":"Một ít nước đã bị đổ ra sàn.","note":"spill → spilled/spilt. has been spilled = đã bị đổ/tràn ra.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"Some water _____ on the floor.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"has been stacked","vi":["đã được xếp chồng"],"cn":"已被堆疊；已疊放","ipa":"/hæz bɪn stækt/","collocation":"has been stacked neatly","ex_en":"The merchandise has been stacked neatly.","ex_cn":"商品已經整齊堆放好。","ex_vi":"Hàng hóa đã được xếp chồng gọn gàng.","note":"stack = xếp chồng; thường gặp trong mô tả ảnh TOEIC.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"The merchandise _____ neatly.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"has been chained","vi":["đã được xích lại","đã được khóa bằng xích"],"cn":"已被鏈住；已用鏈條鎖住","ipa":"/hæz bɪn tʃeɪnd/","collocation":"has been chained to a fence","ex_en":"A bicycle has been chained to a fence.","ex_cn":"一輛自行車已經用鏈條鎖在柵欄上。","ex_vi":"Một chiếc xe đạp đã được khóa bằng xích vào hàng rào.","note":"chain A to B = xích A vào B.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A bicycle _____ to a fence.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"has been hung","vi":["đã được treo lên"],"cn":"已被掛起；已懸掛","ipa":"/hæz bɪn hʌŋ/","collocation":"has been hung on the wall","ex_en":"A picture has been hung on the wall.","ex_cn":"一幅畫已經掛在牆上。","ex_vi":"Một bức tranh đã được treo trên tường.","note":"hang (treo) → hung → hung.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A picture _____ on the wall.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"has been suspended from","vi":["đã được treo từ","đã được treo lơ lửng từ"],"cn":"已從……懸掛；已吊掛於","ipa":"/hæz bɪn səˈspendɪd frəm/","collocation":"has been suspended from the ceiling","ex_en":"A lamp has been suspended from the ceiling.","ex_cn":"一盞燈已經從天花板上懸掛下來。","ex_vi":"Một chiếc đèn đã được treo từ trần nhà.","note":"suspend from = treo/lơ lửng từ một điểm phía trên.","label":"Đồ vật & cấu trúc Part 1 / 物品與 Part 1 句型","cloze":"A lamp _____ the ceiling.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"who","vi":["ai"],"cn":"誰","ipa":"/huː/","collocation":"who is responsible for","ex_en":"Who is responsible for the budget report?","ex_cn":"誰負責預算報告？","ex_vi":"Ai chịu trách nhiệm về báo cáo ngân sách?","note":"WHO hỏi người.","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"_____ is responsible for the budget report?","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"when","vi":["khi nào"],"cn":"什麼時候；何時","ipa":"/wen/","collocation":"when is the meeting","ex_en":"When is the meeting scheduled to begin?","ex_cn":"會議預定什麼時候開始？","ex_vi":"Cuộc họp được lên lịch bắt đầu lúc nào?","note":"WHEN hỏi thời gian.","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"_____ is the meeting scheduled to begin?","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"where","vi":["ở đâu"],"cn":"哪裡；何處","ipa":"/wer/","collocation":"where is the conference room","ex_en":"Where is the conference room?","ex_cn":"會議室在哪裡？","ex_vi":"Phòng hội nghị ở đâu?","note":"WHERE hỏi địa điểm.","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"_____ is the conference room?","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"why","vi":["tại sao","vì sao"],"cn":"為什麼；為何","ipa":"/waɪ/","collocation":"why was it postponed","ex_en":"Why was the training session postponed?","ex_cn":"培訓課程為什麼延期？","ex_vi":"Tại sao buổi đào tạo bị hoãn?","note":"WHY hỏi lý do; câu trả lời thường bắt đầu bằng because/because of.","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"_____ was the training session postponed?","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"how","vi":["như thế nào","bằng cách nào"],"cn":"怎麼；如何","ipa":"/haʊ/","collocation":"how can I help","ex_en":"How can I help you today?","ex_cn":"今天有什麼我可以幫您的嗎？","ex_vi":"Hôm nay tôi có thể giúp gì cho bạn?","note":"HOW hỏi cách thức/phương pháp.","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"_____ can I help you today?","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"manager","vi":["quản lý","trưởng quản lý"],"cn":"經理；管理人員","ipa":"/ˈmænɪdʒər/","collocation":"department manager","ex_en":"The manager will review the proposal this afternoon.","ex_cn":"經理今天下午會審查這項提案。","ex_vi":"Người quản lý sẽ xem xét đề xuất vào chiều nay.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"The _____ will review the proposal this afternoon.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"assistant","vi":["trợ lý","nhân viên hỗ trợ"],"cn":"助理；助手","ipa":"/əˈsɪstənt/","collocation":"administrative assistant","ex_en":"Please give the documents to my assistant.","ex_cn":"請把文件交給我的助理。","ex_vi":"Vui lòng đưa các tài liệu cho trợ lý của tôi.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"Please give the documents to my _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"head of department","vi":["trưởng bộ phận","trưởng phòng"],"cn":"部門主管；部門負責人","ipa":"/hed əv dɪˈpɑːrtmənt/","collocation":"meet the head of department","ex_en":"The head of department will lead the meeting.","ex_cn":"部門主管將主持會議。","ex_vi":"Trưởng bộ phận sẽ chủ trì cuộc họp.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"The _____ will lead the meeting.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"responsible for","vi":["chịu trách nhiệm về","phụ trách"],"cn":"負責……","ipa":"/rɪˈspɑːnsəbəl fɔːr/","collocation":"responsible for the budget","ex_en":"She is responsible for the annual budget.","ex_cn":"她負責年度預算。","ex_vi":"Cô ấy chịu trách nhiệm về ngân sách hằng năm.","note":"responsible for + danh từ/V-ing.","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"She is _____ the annual budget.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"budget report","vi":["báo cáo ngân sách"],"cn":"預算報告","ipa":"/ˈbʌdʒɪt rɪˌpɔːrt/","collocation":"prepare a budget report","ex_en":"The accounting team is preparing a budget report.","ex_cn":"會計團隊正在準備預算報告。","ex_vi":"Nhóm kế toán đang chuẩn bị báo cáo ngân sách.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"The accounting team is preparing a _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"accounting manager","vi":["quản lý kế toán","trưởng bộ phận kế toán"],"cn":"會計經理；會計主管","ipa":"/əˈkaʊntɪŋ ˈmænɪdʒər/","collocation":"contact the accounting manager","ex_en":"Please contact the accounting manager about the invoice.","ex_cn":"請就發票問題聯絡會計經理。","ex_vi":"Vui lòng liên hệ với quản lý kế toán về hóa đơn.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"Please contact the _____ about the invoice.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"sales department","vi":["phòng kinh doanh","bộ phận bán hàng"],"cn":"業務部；銷售部門","ipa":"/seɪlz dɪˈpɑːrtmənt/","collocation":"work in the sales department","ex_en":"She works in the sales department.","ex_cn":"她在業務部工作。","ex_vi":"Cô ấy làm việc ở phòng kinh doanh.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"She works in the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"advertising proposal","vi":["đề xuất quảng cáo","phương án quảng cáo"],"cn":"廣告提案；廣告企劃","ipa":"/ˈædvərtaɪzɪŋ prəˌpoʊzəl/","collocation":"review an advertising proposal","ex_en":"The team will review the advertising proposal tomorrow.","ex_cn":"團隊明天會審查廣告提案。","ex_vi":"Nhóm sẽ xem xét đề xuất quảng cáo vào ngày mai.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"The team will review the _____ tomorrow.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"marketing team","vi":["đội marketing","nhóm tiếp thị"],"cn":"行銷團隊；市場行銷團隊","ipa":"/ˈmɑːrkətɪŋ tiːm/","collocation":"join the marketing team","ex_en":"The marketing team is preparing a new campaign.","ex_cn":"行銷團隊正在準備一項新的行銷活動。","ex_vi":"Đội marketing đang chuẩn bị một chiến dịch mới.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"The _____ is preparing a new campaign.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"project","vi":["dự án"],"cn":"專案；計畫","ipa":"/ˈprɑːdʒekt/","collocation":"complete a project","ex_en":"The team completed the project ahead of schedule.","ex_cn":"團隊提前完成了專案。","ex_vi":"Nhóm đã hoàn thành dự án sớm hơn kế hoạch.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"The team completed the _____ ahead of schedule.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"presentation","vi":["bài thuyết trình","phần trình bày"],"cn":"簡報；報告；發表","ipa":"/ˌprezənˈteɪʃən/","collocation":"give a presentation","ex_en":"Ms. Lee will give a presentation at ten o'clock.","ex_cn":"李女士將在十點做簡報。","ex_vi":"Cô Lee sẽ thuyết trình lúc mười giờ.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"Ms. Lee will give a _____ at ten o'clock.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"training session","vi":["buổi đào tạo","buổi huấn luyện"],"cn":"培訓課程；訓練課程","ipa":"/ˈtreɪnɪŋ ˌseʃən/","collocation":"attend a training session","ex_en":"All new employees must attend the training session.","ex_cn":"所有新進員工都必須參加培訓課程。","ex_vi":"Tất cả nhân viên mới đều phải tham dự buổi đào tạo.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"All new employees must attend the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"postponed","vi":["bị hoãn","được dời lại"],"cn":"延期；被推遲","ipa":"/poʊstˈpoʊnd/","collocation":"meeting was postponed","ex_en":"The meeting has been postponed until Friday.","ex_cn":"會議已經延期到星期五。","ex_vi":"Cuộc họp đã được hoãn đến thứ Sáu.","note":"postpone = hoãn. Thường gặp: be postponed until + thời điểm.","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"The meeting has been _____ until Friday.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"supervisor","vi":["giám sát viên","quản lý trực tiếp"],"cn":"主管；督導","ipa":"/ˈsuːpərvaɪzər/","collocation":"ask a supervisor","ex_en":"Please ask your supervisor for approval.","ex_cn":"請向您的主管申請批准。","ex_vi":"Vui lòng xin sự phê duyệt từ quản lý trực tiếp của bạn.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"Please ask your _____ for approval.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"sales report","vi":["báo cáo bán hàng","báo cáo doanh số"],"cn":"銷售報告；業績報告","ipa":"/seɪlz rɪˌpɔːrt/","collocation":"prepare a sales report","ex_en":"The sales report will be ready this afternoon.","ex_cn":"銷售報告今天下午會準備好。","ex_vi":"Báo cáo bán hàng sẽ hoàn thành vào chiều nay.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"The _____ will be ready this afternoon.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"copier","vi":["máy photocopy","máy sao chép"],"cn":"影印機；複印機","ipa":"/ˈkɑːpiər/","collocation":"office copier","ex_en":"The copier is next to the supply room.","ex_cn":"影印機就在用品室旁邊。","ex_vi":"Máy photocopy ở ngay bên cạnh phòng vật tư.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"The _____ is next to the supply room.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"repair service","vi":["dịch vụ sửa chữa"],"cn":"維修服務","ipa":"/rɪˈper ˌsɝːvɪs/","collocation":"call a repair service","ex_en":"We called a repair service to fix the copier.","ex_cn":"我們叫了維修服務來修理影印機。","ex_vi":"Chúng tôi đã gọi dịch vụ sửa chữa để sửa máy photocopy.","note":"","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"We called a _____ to fix the copier.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"promoted","vi":["được thăng chức","được đề bạt"],"cn":"獲得升職；被晉升","ipa":"/prəˈmoʊtɪd/","collocation":"be promoted to manager","ex_en":"She was promoted to manager last month.","ex_cn":"她上個月升任經理。","ex_vi":"Cô ấy đã được thăng chức lên quản lý vào tháng trước.","note":"be promoted to + chức vụ = được thăng chức lên vị trí...","label":"Câu hỏi & văn phòng / 問句與辦公室","cloze":"She was _____ to manager last month.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"indoors","vi":["trong nhà","ở trong nhà"],"cn":"在室內","ipa":"/ˌɪnˈdɔːrz/","collocation":"work indoors","ex_en":"Because of the rain, the event will be held indoors.","ex_cn":"因為下雨，活動將改在室內舉行。","ex_vi":"Do trời mưa, sự kiện sẽ được tổ chức trong nhà.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"Because of the rain, the event will be held _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"outdoors","vi":["ngoài trời","ở ngoài trời"],"cn":"在戶外；室外","ipa":"/ˌaʊtˈdɔːrz/","collocation":"eat outdoors","ex_en":"Customers can eat outdoors on the patio.","ex_cn":"顧客可以在戶外露台用餐。","ex_vi":"Khách hàng có thể dùng bữa ngoài trời trên sân hiên.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"Customers can eat _____ on the patio.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"not until","vi":["mãi đến... mới","cho đến... mới"],"cn":"直到……才","ipa":"/nɑːt ənˈtɪl/","collocation":"not until Monday","ex_en":"The report won't be ready until Monday.","ex_cn":"報告要到星期一才會完成。","ex_vi":"Mãi đến thứ Hai báo cáo mới hoàn thành.","note":"not ... until = mãi đến... mới...","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"as soon as","vi":["ngay khi","vừa... thì"],"cn":"一……就；一旦","ipa":"/əz suːn əz/","collocation":"as soon as possible","ex_en":"I'll call you as soon as I receive the information.","ex_cn":"我一收到資訊就會打電話給你。","ex_vi":"Tôi sẽ gọi cho bạn ngay khi nhận được thông tin.","note":"as soon as + mệnh đề = ngay khi...","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"I'll call you _____ I receive the information.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"before","vi":["trước","trước khi"],"cn":"在……之前；……以前","ipa":"/bɪˈfɔːr/","collocation":"before the meeting","ex_en":"Please print the report before the meeting.","ex_cn":"請在會議開始前把報告印出來。","ex_vi":"Vui lòng in báo cáo trước cuộc họp.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"Please print the report _____ the meeting.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"after","vi":["sau","sau khi"],"cn":"在……之後；……之後","ipa":"/ˈæftər/","collocation":"after lunch","ex_en":"Let's discuss the proposal after lunch.","ex_cn":"我們午餐後再討論這項提案吧。","ex_vi":"Chúng ta hãy thảo luận về đề xuất sau bữa trưa.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"Let's discuss the proposal _____ lunch.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"ago","vi":["cách đây","trước đây"],"cn":"……以前；……之前","ipa":"/əˈɡoʊ/","collocation":"two days ago","ex_en":"The package arrived two days ago.","ex_cn":"包裹兩天前就送到了。","ex_vi":"Kiện hàng đã đến cách đây hai ngày.","note":"ago đi với khoảng thời gian và thường dùng với quá khứ đơn.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"The package arrived two days _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"during","vi":["trong","trong suốt khoảng thời gian"],"cn":"在……期間；在……過程中","ipa":"/ˈdʊrɪŋ/","collocation":"during the meeting","ex_en":"Please turn off your phone during the meeting.","ex_cn":"會議期間請把手機關掉。","ex_vi":"Vui lòng tắt điện thoại trong cuộc họp.","note":"during + danh từ/cụm danh từ; không theo sau trực tiếp bởi một mệnh đề hoàn chỉnh.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"Please turn off your phone _____ the meeting.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"until","vi":["cho đến","cho đến khi"],"cn":"直到……為止；直到","ipa":"/ənˈtɪl/","collocation":"until Friday","ex_en":"The office will be closed until Friday.","ex_cn":"辦公室將關閉到星期五。","ex_vi":"Văn phòng sẽ đóng cửa cho đến thứ Sáu.","note":"until + thời điểm/mệnh đề = cho đến...","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"The office will be closed _____ Friday.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"as soon as possible","vi":["càng sớm càng tốt","sớm nhất có thể"],"cn":"盡快；儘早","ipa":"/əz suːn əz ˈpɑːsəbəl/","collocation":"reply as soon as possible","ex_en":"Please reply as soon as possible.","ex_cn":"請盡快回覆。","ex_vi":"Vui lòng trả lời càng sớm càng tốt.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"Please reply _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"turn left","vi":["rẽ trái"],"cn":"左轉","ipa":"/tɝːn left/","collocation":"turn left at the corner","ex_en":"Turn left at the next corner.","ex_cn":"在下一個轉角左轉。","ex_vi":"Rẽ trái ở góc đường tiếp theo.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"_____ at the next corner.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"turn right","vi":["rẽ phải"],"cn":"右轉","ipa":"/tɝːn raɪt/","collocation":"turn right at the light","ex_en":"Turn right at the traffic light.","ex_cn":"在紅綠燈處右轉。","ex_vi":"Rẽ phải tại đèn giao thông.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"_____ at the traffic light.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"post office","vi":["bưu điện"],"cn":"郵局","ipa":"/ˈpoʊst ˌɔːfɪs/","collocation":"go to the post office","ex_en":"I need to go to the post office this afternoon.","ex_cn":"我今天下午需要去郵局。","ex_vi":"Tôi cần đến bưu điện vào chiều nay.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"I need to go to the _____ this afternoon.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"accountant","vi":["kế toán viên"],"cn":"會計人員；會計師","ipa":"/əˈkaʊntənt/","collocation":"company accountant","ex_en":"The accountant is reviewing the financial records.","ex_cn":"會計人員正在查閱財務紀錄。","ex_vi":"Kế toán viên đang xem xét các hồ sơ tài chính.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"The _____ is reviewing the financial records.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"contract","vi":["hợp đồng"],"cn":"合約；合同","ipa":"/ˈkɑːntrækt/","collocation":"sign a contract","ex_en":"Please sign the contract by Friday.","ex_cn":"請在星期五之前簽署合約。","ex_vi":"Vui lòng ký hợp đồng trước thứ Sáu.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"Please sign the _____ by Friday.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"because","vi":["bởi vì","vì"],"cn":"因為；由於","ipa":"/bɪˈkɔːz/","collocation":"because the office is closed","ex_en":"The meeting was canceled because the office is closed.","ex_cn":"會議取消了，因為辦公室目前沒有開放。","ex_vi":"Cuộc họp bị hủy vì văn phòng đang đóng cửa.","note":"because + mệnh đề (S + V).","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"The meeting was canceled _____ the office is closed.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"because of","vi":["bởi vì","do","vì"],"cn":"因為；由於；因……之故","ipa":"/bɪˈkɔːz əv/","collocation":"because of the weather","ex_en":"The flight was delayed because of the weather.","ex_cn":"班機因天候因素而延誤。","ex_vi":"Chuyến bay bị hoãn do thời tiết.","note":"because of + danh từ/cụm danh từ/V-ing.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"The flight was delayed _____ the weather.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"how many","vi":["bao nhiêu (dùng với danh từ đếm được)"],"cn":"多少（用於可數名詞）","ipa":"/haʊ ˈmeni/","collocation":"how many copies","ex_en":"How many copies do you need?","ex_cn":"你需要幾份影本？","ex_vi":"Bạn cần bao nhiêu bản sao?","note":"how many + danh từ đếm được số nhiều.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"_____ copies do you need?","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"how much","vi":["bao nhiêu","bao nhiêu tiền (dùng với danh từ không đếm được/giá)"],"cn":"多少；多少錢（用於不可數名詞或價格）","ipa":"/haʊ mʌtʃ/","collocation":"how much does it cost","ex_en":"How much does this service cost?","ex_cn":"這項服務多少錢？","ex_vi":"Dịch vụ này có giá bao nhiêu?","note":"how much + danh từ không đếm được; cũng dùng hỏi giá tiền.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"_____ does this service cost?","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"productive","vi":["năng suất","hiệu quả","có kết quả tốt"],"cn":"有成效的；高效率的；有生產力的","ipa":"/prəˈdʌktɪv/","collocation":"productive meeting","ex_en":"We had a productive meeting this morning.","ex_cn":"我們今天早上開了一場很有成效的會議。","ex_vi":"Chúng tôi đã có một cuộc họp rất hiệu quả vào sáng nay.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"We had a _____ meeting this morning.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"how often","vi":["bao lâu một lần","tần suất thế nào"],"cn":"多久一次；多常","ipa":"/haʊ ˈɔːfən/","collocation":"how often do you travel","ex_en":"How often do you travel for business?","ex_cn":"你多久出差一次？","ex_vi":"Bạn đi công tác bao lâu một lần?","note":"Hỏi tần suất. Trả lời: once/twice a week, often, sometimes...","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"_____ do you travel for business?","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"twice a week","vi":["hai lần một tuần"],"cn":"每週兩次","ipa":"/twaɪs ə wiːk/","collocation":"exercise twice a week","ex_en":"The team meets twice a week.","ex_cn":"團隊每週開會兩次。","ex_vi":"Nhóm họp hai lần mỗi tuần.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"The team meets _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"always","vi":["luôn luôn"],"cn":"總是；一直","ipa":"/ˈɔːlweɪz/","collocation":"always arrive early","ex_en":"She always arrives at the office early.","ex_cn":"她總是很早到辦公室。","ex_vi":"Cô ấy luôn đến văn phòng sớm.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"She _____ arrives at the office early.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"often","vi":["thường xuyên","thường"],"cn":"經常；常常","ipa":"/ˈɔːfən/","collocation":"often travel","ex_en":"He often travels for business.","ex_cn":"他經常出差。","ex_vi":"Anh ấy thường xuyên đi công tác.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"He _____ travels for business.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"sometimes","vi":["thỉnh thoảng","đôi khi"],"cn":"有時；偶爾","ipa":"/ˈsʌmtaɪmz/","collocation":"sometimes work late","ex_en":"We sometimes work late during busy periods.","ex_cn":"在忙碌時期，我們有時會工作到很晚。","ex_vi":"Đôi khi chúng tôi làm việc muộn vào những giai đoạn bận rộn.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"We _____ work late during busy periods.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"how long","vi":["bao lâu","dài bao nhiêu"],"cn":"多久；多長","ipa":"/haʊ lɔːŋ/","collocation":"how long will it take","ex_en":"How long will the repair take?","ex_cn":"維修需要多久？","ex_vi":"Việc sửa chữa sẽ mất bao lâu?","note":"Hỏi khoảng thời gian/độ dài.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"_____ will the repair take?","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"less than","vi":["ít hơn","dưới"],"cn":"少於；不到","ipa":"/les ðæn/","collocation":"less than an hour","ex_en":"The trip takes less than an hour.","ex_cn":"這趟路程不到一小時。","ex_vi":"Chuyến đi mất chưa đến một giờ.","note":"less than = ít hơn; đối lập với more than.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"The trip takes _____ an hour.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"more than","vi":["nhiều hơn","hơn"],"cn":"多於；超過","ipa":"/mɔːr ðæn/","collocation":"more than fifty people","ex_en":"More than fifty people attended the seminar.","ex_cn":"有五十多人參加了研討會。","ex_vi":"Hơn năm mươi người đã tham dự hội thảo.","note":"more than = nhiều hơn/hơn.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"_____ fifty people attended the seminar.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"how far","vi":["bao xa","cách bao xa"],"cn":"多遠","ipa":"/haʊ fɑːr/","collocation":"how far is the station","ex_en":"How far is the station from here?","ex_cn":"車站離這裡有多遠？","ex_vi":"Nhà ga cách đây bao xa?","note":"Hỏi khoảng cách.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"_____ is the station from here?","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"seminar","vi":["hội thảo","buổi chuyên đề"],"cn":"研討會；講座","ipa":"/ˈsemɪnɑːr/","collocation":"attend a seminar","ex_en":"Several employees will attend the seminar.","ex_cn":"幾名員工將參加研討會。","ex_vi":"Một số nhân viên sẽ tham dự hội thảo.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"Several employees will attend the _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"neither","vi":["không cái nào trong hai","cả hai đều không"],"cn":"兩者都不；兩者皆非","ipa":"/ˈniːðər/","collocation":"neither option","ex_en":"Neither option is available today.","ex_cn":"這兩個選項今天都無法使用。","ex_vi":"Hôm nay không có lựa chọn nào trong hai lựa chọn này khả dụng.","note":"neither = không cái nào trong hai; neither A nor B = cả A lẫn B đều không.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"_____ option is available today.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"traffic","vi":["giao thông","lưu lượng xe"],"cn":"交通；車流","ipa":"/ˈtræfɪk/","collocation":"heavy traffic","ex_en":"We were delayed by heavy traffic.","ex_cn":"我們因為交通壅塞而耽擱了。","ex_vi":"Chúng tôi bị chậm trễ vì giao thông đông đúc.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"We were delayed by heavy _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"expensive","vi":["đắt","đắt tiền"],"cn":"昂貴的；價格高的","ipa":"/ɪkˈspensɪv/","collocation":"too expensive","ex_en":"This model is too expensive for our budget.","ex_cn":"這個型號對我們的預算來說太貴了。","ex_vi":"Mẫu này quá đắt so với ngân sách của chúng tôi.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"This model is too _____ for our budget.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"out of paper","vi":["hết giấy","không còn giấy"],"cn":"沒紙了；紙用完了","ipa":"/aʊt əv ˈpeɪpər/","collocation":"printer is out of paper","ex_en":"The printer is out of paper.","ex_cn":"印表機沒紙了。","ex_vi":"Máy in đã hết giấy.","note":"be out of + danh từ = hết, không còn.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"The printer is _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"right away","vi":["ngay lập tức","ngay bây giờ"],"cn":"馬上；立刻","ipa":"/raɪt əˈweɪ/","collocation":"send it right away","ex_en":"I'll send the document right away.","ex_cn":"我會馬上把文件寄出去。","ex_vi":"Tôi sẽ gửi tài liệu ngay lập tức.","note":"right away = ngay lập tức, tương đương immediately.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"I'll send the document _____.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"colleague","vi":["đồng nghiệp"],"cn":"同事","ipa":"/ˈkɑːliːɡ/","collocation":"ask a colleague","ex_en":"I asked a colleague to help with the report.","ex_cn":"我請一位同事協助處理這份報告。","ex_vi":"Tôi đã nhờ một đồng nghiệp giúp làm báo cáo.","note":"","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"I asked a _____ to help with the report.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"would you mind","vi":["bạn có phiền... không"],"cn":"你介意……嗎？","ipa":"/wʊd juː maɪnd/","collocation":"would you mind opening the window","ex_en":"Would you mind opening the window?","ex_cn":"你介意把窗戶打開嗎？","ex_vi":"Bạn có phiền mở cửa sổ không?","note":"Would you mind + V-ing...? = Bạn có phiền... không?","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"_____ opening the window?","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"},{"en":"take care of","vi":["chăm sóc","xử lý","lo liệu"],"cn":"照顧；處理；負責","ipa":"/teɪk ker əv/","collocation":"take care of the reservation","ex_en":"I'll take care of the reservation.","ex_cn":"我會處理預訂的事。","ex_vi":"Tôi sẽ lo việc đặt chỗ.","note":"take care of = chăm sóc hoặc xử lý/giải quyết một việc.","label":"Thời gian, chỉ đường & Part 2 / 時間、方向與 Part 2","cloze":"I'll _____ the reservation.","source":"TOEIC sentence bank của bạn","source_type":"practice_bank"}];
+const KEY="toeic220_master_stable_v1";
+const $=id=>document.getElementById(id);
+
+let mode="mixed";
+let order=[];
+let pos=0;
+let score=0;
+let checked=false;
+let currentType="listenWrite";
+let wrongThisRound=[];
+let forcedPool=null;
+let selectedWrongType="listenWrite";
+
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return {}}}
+function save(s){localStorage.setItem(KEY,JSON.stringify(s))}
+function stateFor(en){
+  const s=load();
+  if(!s[en]) s[en]={attempts:0,correct:0,wrong:0,hard:false,streak:0};
+  return [s,s[en]];
+}
+function getState(en){return load()[en]||{attempts:0,correct:0,wrong:0,hard:false,streak:0}}
+function updateState(en,ok){
+  const [s,r]=stateFor(en);
+  r.attempts++;
+  if(ok){r.correct++;r.streak++}else{r.wrong++;r.streak=0}
+  s[en]=r;save(s);updateStats();renderBank($("search").value||"");
+}
+function normalize(s){
+  return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d")
+    .replace(/[’']/g,"'").replace(/[^a-z0-9\s'-]/g," ").replace(/\s+/g," ").trim();
+}
+function viOK(input,answers){
+  const n=normalize(input);
+  if(!n)return false;
+  return answers.some(a=>{const x=normalize(a);return n===x||(n.length>=4&&(n.includes(x)||x.includes(n)))});
+}
+function shuffle(a){
+  a=[...a];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+  return a;
+}
+function weakScore(x){
+  const r=getState(x.en);
+  const rate=r.attempts?r.wrong/r.attempts:0;
+  return r.wrong*3+rate*5+(r.hard?4:0)+(r.wrong&&r.streak===0?1:0)-r.correct*.1;
+}
+function isWeak(x){
+  const r=getState(x.en);
+  return r.hard||r.wrong>=2||(r.attempts>=3&&r.wrong/r.attempts>=.35);
+}
+function isMastered(x){
+  const r=getState(x.en);
+  return r.correct>=4&&r.streak>=3&&(!r.attempts||r.wrong/r.attempts<.25);
+}
+function weakPool(){
+  return MASTER
+    .filter(x=>isWeak(x) || getState(x.en).wrong>0)
+    .sort((a,b)=>weakScore(b)-weakScore(a));
+}
+function updateStats(){
+  let attempts=0,correct=0,wrong=0,weak=0,master=0;
+  MASTER.forEach(x=>{
+    const r=getState(x.en);
+    attempts+=r.attempts;correct+=r.correct;wrong+=r.wrong;
+    if(isWeak(x))weak++;
+    if(isMastered(x))master++;
+  });
+  $("sAttempts").textContent=attempts;
+  $("sCorrect").textContent=correct;
+  $("sWrong").textContent=wrong;
+  $("sWeak").textContent=weak;
+  $("sMaster").textContent=master;
+}
+function chooseType(){
+  if(mode==="wrong") return selectedWrongType;
+  if(mode!=="mixed") return mode;
+  const p=["listenWrite","sentenceTarget","sentenceWordFill","listenMeaningWrite","listenMeaningChoice","enVi","viEn","viEnChoice","cloze"];
+  return p[Math.floor(Math.random()*p.length)];
+}
+function roundPool(){
+  if(forcedPool) return [...forcedPool];
+  return mode==="wrong" ? weakPool() : MASTER;
+}
+function startRound(){
+  const pool=roundPool();
+  if(mode==="wrong" && pool.length===0){
+    $("quiz").classList.add("hidden");
+    $("end").classList.remove("hidden");
+    $("result").textContent="Hiện chưa có từ nào trong lịch sử làm sai.";
+    $("review").innerHTML="<p>Hãy làm bài bình thường trước. Khi có từ sai, từ đó sẽ tự động xuất hiện ở phần ôn riêng này.</p>";
+    $("redoWrong").style.display="none";
+    return;
+  }
+  const n=Math.min(Number($("count").value),pool.length);
+  order=shuffle(pool).slice(0,n);
+  forcedPool=null;
+  pos=0;score=0;checked=false;wrongThisRound=[];
+  $("quiz").classList.remove("hidden");
+  $("end").classList.add("hidden");
+  showQuestion();
+}
+function showQuestion(){
+  checked=false;
+  currentType=chooseType();
+  const x=order[pos];
+  if(currentType==="cloze" && !x.cloze) currentType="viEn";
+  $("progress").textContent=`Câu ${pos+1} / ${order.length}`;
+  $("score").textContent=`Điểm: ${score} / ${pos}`;
+  $("feedback").textContent="";
+  $("feedback").className="feedback";
+  $("details").classList.add("hidden");
+  $("next").classList.add("hidden");
+  $("context").classList.add("hidden");
+  $("listen").classList.add("hidden");
+  $("choices").classList.add("hidden");
+  $("choices").innerHTML="";
+  $("sentenceFill").classList.add("hidden");
+  $("sentenceFill").innerHTML="";
+  $("sentenceWordStatus").classList.add("hidden");
+  $("sentenceWordStatus").textContent="";
+  $("typing").classList.remove("hidden");
+  $("answer").value="";
+  $("answer").readOnly=false;
+  $("answer").placeholder="Nhập đáp án...";
+
+  if(currentType==="listenWrite"){
+    $("prompt").textContent="Nghe → viết từ/cụm từ tiếng Anh";
+    $("listen").classList.remove("hidden");
+    $("answer").placeholder="Nhập chính tả tiếng Anh...";
+  }else if(currentType==="sentenceTarget"){
+    $("prompt").textContent="Nghe cả câu → chỉ viết từ/cụm từ mới";
+    $("listen").classList.remove("hidden");
+    $("context").textContent="Không cần viết cả câu. Chỉ nhập từ/cụm từ mục tiêu.";
+    $("context").classList.remove("hidden");
+    $("answer").placeholder="Chỉ nhập từ/cụm từ mới...";
+  }else if(currentType==="sentenceWordFill"){
+    $("prompt").textContent="Nghe cả câu → điền từng từ";
+    $("listen").classList.remove("hidden");
+    $("typing").classList.add("hidden");
+    $("sentenceFill").classList.remove("hidden");
+    $("sentenceWordStatus").classList.remove("hidden");
+    buildSentenceWordFill(x);
+  }else if(currentType==="listenMeaningWrite"){
+    $("prompt").textContent="Nghe → viết nghĩa tiếng Việt";
+    $("listen").classList.remove("hidden");
+    $("answer").placeholder="Nhập nghĩa tiếng Việt...";
+  }else if(currentType==="listenMeaningChoice"){
+    $("prompt").textContent="Nghe → chọn nghĩa đúng";
+    $("listen").classList.remove("hidden");
+    $("typing").classList.add("hidden");
+    makeChoices(x.vi[0],"vi");
+  }else if(currentType==="enVi"){
+    $("prompt").textContent=x.en+" → ?";
+    $("answer").placeholder="Nhập nghĩa tiếng Việt...";
+  }else if(currentType==="viEn"){
+    $("prompt").textContent=x.vi[0]+" → ?";
+    $("answer").placeholder="Nhập từ/cụm từ tiếng Anh...";
+  }else if(currentType==="viEnChoice"){
+    $("prompt").textContent=x.vi[0];
+    $("typing").classList.add("hidden");
+    makeChoices(x.en,"en");
+  }else{
+    $("prompt").textContent="Điền từ/cụm từ còn thiếu";
+    $("context").textContent=x.cloze||"_____";
+    $("context").classList.remove("hidden");
+    $("answer").placeholder="Nhập từ/cụm từ tiếng Anh...";
+  }
+
+  if($("autoplay").checked&&["listenWrite","sentenceTarget","sentenceWordFill","listenMeaningWrite","listenMeaningChoice"].includes(currentType)){
+    setTimeout(()=>{
+      if(currentType==="sentenceTarget" || currentType==="sentenceWordFill"){
+        speakSentence(.72);
+      }else{
+        speakWord(.72);
+      }
+    },450);
+  }
+  if(!$("typing").classList.contains("hidden"))$("answer").focus();
+}
+
+function sentenceTokens(text){
+  const raw=String(text||"").trim();
+  if(!raw) return [];
+  return raw.split(/\s+/).map(piece=>{
+    const m=piece.match(/^([^A-Za-z0-9']*)([A-Za-z0-9']+(?:-[A-Za-z0-9']+)*)([^A-Za-z0-9']*)$/);
+    if(!m) return {lead:"",word:piece,trail:""};
+    return {lead:m[1]||"",word:m[2]||"",trail:m[3]||""};
+  });
+}
+
+function buildSentenceWordFill(x){
+  const tokens=sentenceTokens(x.ex_en||x.en);
+  const wrap=$("sentenceFill");
+  wrap.innerHTML="";
+  tokens.forEach((tok,i)=>{
+    if(tok.lead){
+      const lead=document.createElement("span");
+      lead.textContent=tok.lead;
+      wrap.appendChild(lead);
+    }
+
+    const box=document.createElement("span");
+    box.className="wordBox";
+
+    const inp=document.createElement("input");
+    inp.type="text";
+    inp.className="wordInput";
+    inp.dataset.answer=tok.word;
+    inp.dataset.index=String(i);
+    inp.autocomplete="off";
+    inp.autocapitalize="off";
+    inp.spellcheck=false;
+    inp.style.width=(Math.max(4,Math.min(16,tok.word.length+1))*10+22)+"px";
+
+    inp.addEventListener("input",()=>{
+      const v=normalize(inp.value);
+      const a=normalize(inp.dataset.answer);
+      inp.classList.remove("correctWord","wrongWord");
+      if(!v){
+        updateSentenceWordStatus();
+        return;
+      }
+      if(v===a){
+        inp.classList.add("correctWord");
+      }else if(!a.startsWith(v)){
+        inp.classList.add("wrongWord");
+      }
+      updateSentenceWordStatus();
+    });
+
+    inp.addEventListener("blur",()=>{
+      if(!inp.value.trim()) return;
+      gradeOneWord(inp);
+    });
+
+    inp.addEventListener("keydown",e=>{
+      if(e.key===" " || e.key==="Enter"){
+        e.preventDefault();
+        e.stopPropagation();
+        gradeOneWord(inp);
+        const inputs=[...document.querySelectorAll("#sentenceFill .wordInput")];
+        const k=inputs.indexOf(inp);
+        if(k<inputs.length-1){
+          inputs[k+1].focus();
+        }else{
+          finishSentenceWordQuestion();
+        }
+      }
+    });
+
+    box.appendChild(inp);
+    if(tok.trail){
+      const punct=document.createElement("span");
+      punct.className="wordPunct";
+      punct.textContent=tok.trail;
+      box.appendChild(punct);
+    }
+    wrap.appendChild(box);
+  });
+
+  const first=wrap.querySelector(".wordInput");
+  if(first) first.focus();
+  updateSentenceWordStatus();
+}
+
+function gradeOneWord(inp){
+  const ok=normalize(inp.value)===normalize(inp.dataset.answer);
+  inp.classList.toggle("correctWord",ok);
+  inp.classList.toggle("wrongWord",!ok && !!inp.value.trim());
+  updateSentenceWordStatus();
+  return ok;
+}
+
+function updateSentenceWordStatus(){
+  const inputs=[...document.querySelectorAll("#sentenceFill .wordInput")];
+  let right=0,wrong=0,filled=0;
+  inputs.forEach(inp=>{
+    if(inp.value.trim()) filled++;
+    if(inp.classList.contains("correctWord")) right++;
+    if(inp.classList.contains("wrongWord")) wrong++;
+  });
+  $("sentenceWordStatus").textContent=`Đúng ${right}/${inputs.length} từ · Sai ${wrong} từ · Đã điền ${filled}/${inputs.length}`;
+}
+
+function finishSentenceWordQuestion(){
+  if(checked){
+    nextQuestion();
+    return;
+  }
+  const inputs=[...document.querySelectorAll("#sentenceFill .wordInput")];
+  if(!inputs.length) return;
+
+  const empty=inputs.find(inp=>!inp.value.trim());
+  if(empty){
+    $("feedback").textContent="Hãy điền đủ tất cả các từ trong câu.";
+    $("feedback").className="feedback bad";
+    empty.focus();
+    return;
+  }
+
+  let allCorrect=true;
+  inputs.forEach(inp=>{
+    if(!gradeOneWord(inp)) allCorrect=false;
+  });
+
+  const x=order[pos];
+  checked=true;
+  if(allCorrect){
+    score++;
+    $("feedback").textContent="✓ Chính xác toàn bộ câu!";
+    $("feedback").className="feedback good";
+  }else{
+    wrongThisRound.push(x.en);
+    $("feedback").textContent="✗ Ô xanh = đúng, ô đỏ = sai. Bạn có thể nhìn ngay từng từ.";
+    $("feedback").className="feedback bad";
+  }
+  updateState(x.en,allCorrect);
+  showDetails(x);
+  $("next").classList.remove("hidden");
+}
+
+function makeChoices(correct,dir){
+  const x=order[pos];
+  const distract=shuffle(MASTER.filter(y=>y.en!==x.en));
+  const vals=[];
+  for(const y of distract){
+    const v=dir==="vi"?y.vi[0]:y.en;
+    if(normalize(v)!==normalize(correct)&&!vals.some(z=>normalize(z)===normalize(v)))vals.push(v);
+    if(vals.length===3)break;
+  }
+  const opts=shuffle([correct,...vals]);
+  $("choices").classList.remove("hidden");
+  opts.forEach(t=>{
+    const b=document.createElement("button");
+    b.className="choice";
+    b.textContent=t;
+    b.onclick=()=>checkChoice(b,t,correct);
+    $("choices").appendChild(b);
+  });
+}
+function speakText(text,rate){
+  if(!("speechSynthesis" in window)||!text)return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang="en-US";u.rate=rate;u.pitch=1;
+  const vs=speechSynthesis.getVoices();
+  const v=vs.find(v=>/en-US/i.test(v.lang)&&/Natural|Neural|Samantha|Google US English|Aria|Jenny|Ava/i.test(v.name))
+    ||vs.find(v=>/en-US/i.test(v.lang));
+  if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+function speakWord(rate=.9){speakText(order[pos].en,rate)}
+function speakSentence(rate=.9){speakText(order[pos].ex_en||order[pos].en,rate)}
+
+function showDetails(x){
+  $("wordline").innerHTML=`${x.en} <span class="ipa">${x.ipa||""}</span>`;
+  $("tag").textContent=x.label||"Từ/cụm từ TOEIC";
+  $("meaning").innerHTML=`<b>繁體中文:</b> ${x.cn||""}<br><b>Tiếng Việt:</b> ${(x.vi||[]).join(" / ")}`;
+  $("collocation").textContent="Cụm thường gặp: "+(x.collocation||"—");
+  $("exEn").innerHTML=`<b>English:</b> ${x.ex_en||""}`;
+  $("exCn").innerHTML=`<b>繁體中文:</b> ${x.ex_cn||""}`;
+  $("exVi").innerHTML=`<b>Tiếng Việt:</b> ${x.ex_vi||""}`;
+  $("sourceLine").textContent="Nguồn câu: "+(x.source||"TOEIC sentence bank");
+  if(x.note){$("note").textContent="Ghi chú: "+x.note;$("note").classList.remove("hidden")}else{$("note").classList.add("hidden")}
+  $("hard").textContent=getState(x.en).hard?"★ Đã đánh dấu từ khó":"⭐ Đánh dấu từ khó";
+  $("details").classList.remove("hidden");
+}
+function finishAnswer(ok,userText){
+  const x=order[pos];
+  checked=true;
+  if(ok){
+    score++;
+    $("feedback").textContent="✓ Chính xác!";
+    $("feedback").className="feedback good";
+  }else{
+    wrongThisRound.push(x.en);
+    $("feedback").textContent=`✗ Chưa đúng. Đáp án: ${x.en} — ${(x.vi||[]).join(" / ")}`;
+    $("feedback").className="feedback bad";
+  }
+  updateState(x.en,ok);
+  showDetails(x);
+  $("next").classList.remove("hidden");
+}
+function checkTyped(){
+  if(currentType==="sentenceWordFill"){
+    finishSentenceWordQuestion();
+    return;
+  }
+  if(checked){nextQuestion();return}
+  const x=order[pos];
+  const v=$("answer").value.trim();
+  if(!v){$("feedback").textContent="Hãy nhập đáp án trước.";$("feedback").className="feedback bad";return}
+  const ok=(currentType==="enVi"||currentType==="listenMeaningWrite")?viOK(v,x.vi):normalize(v)===normalize(x.en);
+  $("answer").readOnly=true;
+  finishAnswer(ok,v);
+}
+function checkChoice(btn,chosen,correct){
+  if(checked)return;
+  const ok=normalize(chosen)===normalize(correct);
+  [...$("choices").children].forEach(b=>{if(normalize(b.textContent)===normalize(correct))b.classList.add("correct")});
+  if(!ok)btn.classList.add("wrong");
+  finishAnswer(ok,chosen);
+}
+function nextQuestion(){
+  if(!checked){checkTyped();return}
+  pos++;
+  if(pos>=order.length)finishRound();else showQuestion();
+}
+function finishRound(){
+  $("quiz").classList.add("hidden");
+  $("end").classList.remove("hidden");
+  const pct=order.length?Math.round(score/order.length*100):0;
+  $("result").textContent=`Kết quả: ${score} / ${order.length} câu đúng (${pct}%).`;
+  const unique=[...new Set(wrongThisRound)];
+  $("redoWrong").style.display=unique.length?"inline-block":"none";
+  $("review").innerHTML=unique.length
+    ? "<h3>Từ sai trong lượt này</h3>"+unique.map(en=>{
+        const x=MASTER.find(z=>z.en===en),r=getState(en);
+        return `<div class="reviewrow"><b>${x.en}</b> — ${x.vi.join(" / ")} <span class="badge">sai tổng ${r.wrong}</span></div>`;
+      }).join("")
+    : "<p>🎉 Không có từ sai trong lượt này.</p>";
+}
+function redoWrong(){
+  const set=[...new Set(wrongThisRound)];
+  if(!set.length) return;
+  forcedPool=MASTER.filter(x=>set.includes(x.en));
+  selectedWrongType=$("wrongModeSelect").value;
+  mode="wrong";
+  document.querySelectorAll(".mode").forEach(b=>b.classList.remove("active"));
+  startRound();
+}
+function redoFrequent(){
+  const p=weakPool();
+  forcedPool=p.slice(0,Math.min(Number($("count").value),p.length));
+  selectedWrongType=$("wrongModeSelect").value;
+  mode="wrong";
+  document.querySelectorAll(".mode").forEach(b=>b.classList.remove("active"));
+  startRound();
+}
+function setModeButton(m){
+  document.querySelectorAll(".mode").forEach(b=>b.classList.toggle("active",b.dataset.mode===m));
+}
+function renderBank(q=""){
+  const n=normalize(q);
+  $("bankGrid").innerHTML=MASTER.filter(x=>!n||normalize(x.en+" "+x.vi.join(" ")+" "+x.cn).includes(n)).map(x=>{
+    const r=getState(x.en);
+    const extra=isWeak(x)?" · ⚠ hay sai":isMastered(x)?" · ✓ đã nhớ":"";
+    return `<div class="bankitem"><b>${x.en}</b> <span class="small">${x.ipa||""}</span><br>${x.vi.join(" / ")}<br><span class="small">${x.cn||""} · đúng ${r.correct} / sai ${r.wrong}${extra}</span></div>`;
+  }).join("");
+}
+
+document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{
+  mode=b.dataset.mode;
+  forcedPool=null;
+  setModeButton(mode);
+  startRound();
+});
+$("startWrongPractice").onclick=()=>{
+  selectedWrongType=$("wrongModeSelect").value;
+  mode="wrong";
+  forcedPool=null;
+  document.querySelectorAll(".mode").forEach(b=>b.classList.remove("active"));
+  startRound();
+};
+$("wrongModeSelect").addEventListener("change",e=>{selectedWrongType=e.target.value;});
+
+$("listen").addEventListener("click",()=>{
+  if(currentType==="sentenceTarget" || currentType==="sentenceWordFill"){
+    speakSentence(.72);
+  }else{
+    speakWord(.72);
+  }
+});
+
+/* In the sentence-fill listening exercise, clicking any empty area of the quiz
+   also replays the full sentence. Clicking an input/button does not. */
+$("quiz").addEventListener("click",e=>{
+  if(currentType!=="sentenceWordFill") return;
+  if(e.target.closest("input,button,select")) return;
+  if(e.target.closest("#listen")) return;
+  speakSentence(.72);
+});
+
+$("check").onclick=checkTyped;
+$("next").onclick=nextQuestion;
+$("repeat").onclick=()=>["sentenceTarget","sentenceWordFill"].includes(currentType)?speakSentence(.72):speakWord(.72);
+$("slow").onclick=()=>["sentenceTarget","sentenceWordFill"].includes(currentType)?speakSentence(.58):speakWord(.58);
+$("newRound").onclick=()=>{forcedPool=null;startRound()};
+$("again").onclick=()=>{forcedPool=null;startRound()};
+$("redoWrong").onclick=redoWrong;
+$("redoFrequent").onclick=redoFrequent;
+$("hard").onclick=()=>{
+  const x=order[pos];
+  const [s,r]=stateFor(x.en);
+  r.hard=!r.hard;s[x.en]=r;save(s);
+  $("hard").textContent=r.hard?"★ Đã đánh dấu từ khó":"⭐ Đánh dấu từ khó";
+  updateStats();renderBank($("search").value||"");
+};
+$("reset").onclick=()=>{
+  if(confirm("Xóa toàn bộ lịch sử đúng/sai và từ khó?")){
+    localStorage.removeItem(KEY);
+    updateStats();renderBank();startRound();
+  }
+};
+$("search").addEventListener("input",e=>renderBank(e.target.value));
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    e.preventDefault();
+    if(checked)nextQuestion();
+    else if(!$("typing").classList.contains("hidden"))checkTyped();
+  }
+});
+
+updateStats();
+renderBank();
+startRound();
+</script>
+</body>
+</html>
